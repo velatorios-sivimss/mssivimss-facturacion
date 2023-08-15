@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.imss.sivimss.facturacion.service.FacturacionService;
 import com.imss.sivimss.facturacion.util.DatosRequest;
 import com.imss.sivimss.facturacion.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.facturacion.util.Response;
@@ -30,8 +31,8 @@ import lombok.AllArgsConstructor;
 @RequestMapping("/facturacion")
 public class FacturacionController {
 
-	//@Autowired
-	//private PagosService pagosService;
+	@Autowired
+	private FacturacionService facturacionService;
 	
 	@Autowired
 	private ProviderServiceRestTemplate providerRestTemplate;
@@ -46,8 +47,7 @@ public class FacturacionController {
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
 	public CompletableFuture<Object> buscar(@RequestBody DatosRequest request, Authentication authentication) throws IOException {
-		//Response<?> response =   pagosService.buscar(request,authentication);
-		Response<?> response =  null;
+		Response<?> response =   facturacionService.buscar(request,authentication);
 		return CompletableFuture.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
 	
