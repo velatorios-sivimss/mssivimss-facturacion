@@ -68,7 +68,11 @@ public class FacturacionUtil {
 				query.append( "AND ");
 			}
 			
-			query.append( "PB.ID_FLUJO_PAGOS = '" + filtros.getIdFlujoPagos() +"' " );
+			if( filtros.getIdFlujoPagos().equals("2") ) {
+				query.append( "PB.ID_FLUJO_PAGOS IN (2,3)" );
+			}else {
+				query.append( "PB.ID_FLUJO_PAGOS = '" + filtros.getIdFlujoPagos() +"' " );
+			}
 			i++;
 		}
 		
@@ -123,5 +127,43 @@ public class FacturacionUtil {
 		
 		return query.toString();
 	}
+	
+	public String consultaFolios(String tipoFactura) {
+		
+		String query = "";
+		
+		switch(tipoFactura) {
+		
+		case "1":
+				query = foliosODS();
+			break;
+		case "2":
+			break;
+		case "3":
+			break;
+		case "4":
+			break;
+		case "5":
+			break;
+		
+		}
+		
+		return query;
+	}
 
+	
+	private String foliosODS() {
+		StringBuilder query = new StringBuilder("");
+		
+		query.append( "SELECT\r\n"
+				+ "PB.ID_PAGO_BITACORA AS idPagoBitacora,\r\n"
+				+ "PB.ID_REGISTRO AS idOds,\r\n"
+				+ "PB.CVE_FOLIO AS folio\r\n"
+				+ "FROM SVT_PAGO_BITACORA PB\r\n"
+				+ "WHERE\r\n"
+				+ "PB.ID_FLUJO_PAGOS = 1\r\n"
+				+ "AND PB.CVE_ESTATUS_PAGO =4" );
+		
+		return query.toString();
+	}
 }
