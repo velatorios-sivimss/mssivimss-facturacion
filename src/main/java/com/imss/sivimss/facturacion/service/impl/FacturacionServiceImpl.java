@@ -1,6 +1,8 @@
 package com.imss.sivimss.facturacion.service.impl;
 
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 
 import javax.xml.bind.DatatypeConverter;
@@ -16,6 +18,7 @@ import com.imss.sivimss.facturacion.service.FacturacionService;
 import com.imss.sivimss.facturacion.util.DatosRequest;
 import com.imss.sivimss.facturacion.util.Response;
 import com.imss.sivimss.facturacion.model.request.FiltroRequest;
+import com.imss.sivimss.facturacion.model.request.FoliosRequest;
 import com.imss.sivimss.facturacion.util.AppConstantes;
 import com.imss.sivimss.facturacion.util.MensajeResponseUtil;
 import com.imss.sivimss.facturacion.util.FacturacionUtil;
@@ -63,6 +66,26 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		return MensajeResponseUtil.mensajeConsultaResponse( response, SIN_INFORMACION );
 	
+	}
+
+	@Override
+	public Response<Object> buscarFolios(DatosRequest request, Authentication authentication) throws IOException {
+		Gson gson = new Gson();
+		FoliosRequest foliosRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), FoliosRequest.class);
+		FacturacionUtil facturacionUtil = new FacturacionUtil();
+		String query = facturacionUtil.consultaFolios(foliosRequest.getTipoFactura());
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		Map<String, Object> datos = new HashMap<>();
+		datos.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		request.setDatos(datos);
+		
+		Response<Object> response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		return MensajeResponseUtil.mensajeConsultaResponse( response, SIN_INFORMACION );
 	}
 
 }
