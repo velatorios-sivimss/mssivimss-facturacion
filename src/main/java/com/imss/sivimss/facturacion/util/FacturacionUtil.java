@@ -157,7 +157,7 @@ public class FacturacionUtil {
 		
 		query.append( "SELECT\r\n"
 				+ "PB.ID_PAGO_BITACORA AS idPagoBitacora,\r\n"
-				+ "PB.ID_REGISTRO AS idOds,\r\n"
+				+ "PB.ID_REGISTRO AS idRegistro,\r\n"
 				+ "PB.CVE_FOLIO AS folio\r\n"
 				+ "FROM SVT_PAGO_BITACORA PB\r\n"
 				+ "WHERE\r\n"
@@ -166,4 +166,80 @@ public class FacturacionUtil {
 		
 		return query.toString();
 	}
+	
+	public String infoPagos(String idPagoBitacora) {
+		
+		StringBuilder query = new StringBuilder("");
+		
+		query.append( "SELECT\r\n"
+				+ "CONCAT('\"',PB.NOM_CONTRATANTE,'\"') AS nomContratante,\r\n"
+				+ "PB.FEC_ODS AS fecOds,\r\n"
+				+ "CONCAT('\"',PB.FEC_ACTUALIZACION,'\"') AS fecPago,\r\n"
+				+ "CONCAT('\"', FP.DESC_FLUJO_PAGOS,'\"') AS concPago,\r\n"
+				+ "IFNULL( \r\n"
+				+ "(SELECT SUM(PD.IMP_IMPORTE)\r\n"
+				+ "FROM  SVT_PAGO_DETALLE PD\r\n"
+				+ "WHERE\r\n"
+				+ "PD.ID_PAGO_BITACORA = " );
+		query.append( idPagoBitacora );
+		query.append( "\r\n" );
+		query.append( "AND PD.CVE_ESTATUS = '4' ), 0) \r\n"
+				+ "AS totalPagado,\r\n"
+				+ "PB.DESC_VALOR AS totalServicios,\r\n"
+				+ "PER.CVE_RFC AS rfc,\r\n"
+				+ "PER.DES_CORREO AS correo\r\n"
+				+ "FROM SVT_PAGO_BITACORA PB\r\n"
+				+ "INNER JOIN SVC_FLUJO_PAGOS FP ON FP.ID_FLUJO_PAGOS = PB.ID_FLUJO_PAGOS\r\n"
+				+ "INNER JOIN SVC_ORDEN_SERVICIO OS ON OS.ID_ORDEN_SERVICIO = PB.ID_REGISTRO\r\n"
+				+ "INNER JOIN SVC_CONTRATANTE CON ON CON.ID_CONTRATANTE = OS.ID_CONTRATANTE\r\n"
+				+ "INNER JOIN SVC_PERSONA PER ON PER.ID_PERSONA = CON.ID_PERSONA\r\n"
+				+ "WHERE\r\n"
+				+ "PB.ID_PAGO_BITACORA = ");
+		query.append( idPagoBitacora );
+		query.append( "\r\n LIMIT 1" );
+		
+		return query.toString();
+	}
+	
+	public String obtMetPago(String idPagoBitacora) {
+		
+		StringBuilder query = new StringBuilder("");
+		
+		query.append( "SELECT\r\n"
+				+ "MP.DESC_METODO_PAGO AS metodoPago,\r\n"
+				+ "PD.IMP_IMPORTE AS importe\r\n"
+				+ "FROM\r\n"
+				+ "SVT_PAGO_DETALLE PD\r\n"
+				+ "INNER JOIN SVC_METODO_PAGO MP ON MP.ID_METODO_PAGO = PD.ID_METODO_PAGO\r\n"
+				+ "WHERE ID_PAGO_BITACORA = " );
+		query.append( idPagoBitacora );
+		query.append( "\r\n AND PD.CVE_ESTATUS = '4'" );
+		
+		return query.toString();
+	}
+	
+	public String obtServicios(String idRegistro) {
+		
+		StringBuilder query = new StringBuilder("");
+		
+		query.append( "SELECT\r\n"
+				+ "IFNULL(CA.DES_CATEGORIA_ARTICULO, SER.DES_NOM_SERVICIO) AS grupo,\r\n"
+				+ "IFNULL(AR.DES_ARTICULO, SER.DES_SERVICIO) AS concepto,\r\n"
+				+ "DCP.CAN_CANTIDAD AS cantidad,\r\n"
+				+ "'' AS claveSAT,\r\n"
+				+ "DCP.IMP_IMPORTE AS importe,\r\n"
+				+ "DCP.IMP_IMPORTE AS total\r\n"
+				+ "FROM\r\n"
+				+ "SVC_CARACTERISTICAS_PRESUPUESTO CP\r\n"
+				+ "INNER JOIN SVC_DETALLE_CARACTERISTICAS_PRESUPUESTO DCP ON DCP.ID_CARACTERISTICAS_PRESUPUESTO = CP.ID_CARACTERISTICAS_PRESUPUESTO\r\n"
+				+ "LEFT JOIN SVT_ARTICULO AR ON AR.ID_ARTICULO = DCP.ID_ARTICULO\r\n"
+				+ "LEFT JOIN SVC_CATEGORIA_ARTICULO CA ON CA.ID_CATEGORIA_ARTICULO = AR.ID_CATEGORIA_ARTICULO\r\n"
+				+ "LEFT JOIN SVT_SERVICIO SER ON SER.ID_SERVICIO = DCP.ID_SERVICIO\r\n"
+				+ "WHERE\r\n"
+				+ "CP.ID_ORDEN_SERVICIO = " );
+		query.append( idRegistro );
+		
+		return query.toString();
+	}
+	
 }
