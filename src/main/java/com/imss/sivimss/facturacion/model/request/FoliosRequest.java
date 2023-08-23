@@ -17,5 +17,6 @@ import lombok.Setter;
 public class FoliosRequest {
 
 	private String tipoFactura;
-	
+	private String idPagoBitacora;
+	private String idRegistro;
 }
