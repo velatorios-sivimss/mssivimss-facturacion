@@ -12,5 +12,6 @@ public interface FacturacionService {
 	Response<Object> buscar(DatosRequest request, Authentication authentication) throws IOException;
 	Response<Object> buscarFolios(DatosRequest request, Authentication authentication) throws IOException;
 	Response<Object> infoFolio(DatosRequest request, Authentication authentication) throws IOException;
+	Response<Object> buscarRfc(DatosRequest request, Authentication authentication) throws Exception;
 	
 }
