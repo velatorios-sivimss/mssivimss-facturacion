@@ -27,6 +27,9 @@ public class AppConstantes {
 	public static final String CIRCUITBREAKER = "186"; // El servicio no responde, no permite más llamadas.
 	public static final String OCURRIO_ERROR_GENERICO = "187";// Ocurrio un error al procesar tu solicitud.
 
+	public static final String PERSONA_FISICA = "Persona física";
+	public static final String PERSONA_MORAL = "Persona moral";
+	
 	private AppConstantes() {
 		throw new IllegalStateException("AppConstantes class");
 	}

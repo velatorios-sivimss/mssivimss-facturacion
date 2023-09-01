@@ -12,7 +12,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.imss.sivimss.facturacion.service.CatalogosService;
 import com.imss.sivimss.facturacion.service.FacturacionService;
+import com.imss.sivimss.facturacion.service.RfcService;
 import com.imss.sivimss.facturacion.util.DatosRequest;
 import com.imss.sivimss.facturacion.util.ProviderServiceRestTemplate;
 import com.imss.sivimss.facturacion.util.Response;
@@ -39,6 +41,12 @@ public class FacturacionController {
 	
 	@Autowired
 	private LogUtil logUtil;
+	
+	@Autowired
+	private RfcService rfcService;
+	
+	@Autowired
+	private CatalogosService catalogos;
 	
 	private static final String CONSULTA = "consulta";
 	
@@ -74,7 +82,34 @@ public class FacturacionController {
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
 	public CompletableFuture<Object> buscarRfc(@RequestBody DatosRequest request, Authentication authentication) throws Exception {
-		Response<?> response =   facturacionService.buscarRfc(request,authentication);
+		Response<?> response =   rfcService.buscar(request,authentication);
+		return CompletableFuture.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
+	}
+	
+	@PostMapping("/consulta/cfdi")
+	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@TimeLimiter(name = "msflujo")
+	public CompletableFuture<Object> buscarCfdi(@RequestBody DatosRequest request, Authentication authentication) throws Exception {
+		Response<?> response =   catalogos.buscarCfdi(request,authentication);
+		return CompletableFuture.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
+	}
+	
+	@PostMapping("/consulta/metodo/pago")
+	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@TimeLimiter(name = "msflujo")
+	public CompletableFuture<Object> metPago(@RequestBody DatosRequest request, Authentication authentication) throws Exception {
+		Response<?> response =   catalogos.metPago(request,authentication);
+		return CompletableFuture.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
+	}
+	
+	@PostMapping("/consulta/forma/pago")
+	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@TimeLimiter(name = "msflujo")
+	public CompletableFuture<Object> formaPago(@RequestBody DatosRequest request, Authentication authentication) throws Exception {
+		Response<?> response =   catalogos.formaPago(request,authentication);
 		return CompletableFuture.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
 	
