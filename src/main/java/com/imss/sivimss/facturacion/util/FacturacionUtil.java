@@ -1,24 +1,25 @@
 package com.imss.sivimss.facturacion.util;
 
+import com.imss.sivimss.facturacion.model.request.CrearFacRequest;
 import com.imss.sivimss.facturacion.model.request.FiltroRequest;
 
 public class FacturacionUtil {
 	
 	private static String CONSULTA_TABLA = "SELECT \r\n"
 			+ "VEL.DES_VELATORIO AS velatorio,\r\n"
-			+ "PB.ID_VELATORIO AS idVelatorio,\r\n"
-			+ "PB.CVE_FOLIO AS folio,\r\n"
+			+ "FAC.ID_VELATORIO AS idVelatorio,\r\n"
+			+ "FAC.CVE_FOLIO AS folio,\r\n"
 			+ "FAC.ID_FACTURA AS folioFactura,\r\n"
 			+ "FAC.FEC_FACTURACION AS fechaFactura,\r\n"
 			+ "FAC.CVE_FOLIO_FISCAL AS folioFiscal,\r\n"
 			+ "FAC.CVE_RFC_CONTRATANTE AS rfc,\r\n"
 			+ "FAC.DES_RAZON_SOCIAL AS razonSocial,\r\n"
 			+ "ESFAC.DES_ESTATUS AS estatusFactura,\r\n"
-			+ "PB.ID_FLUJO_PAGOS AS idFlujoPagos\r\n"
+			+ "FAC.ID_FLUJO_PAGOS AS idFlujoPagos\r\n"
 			+ "FROM SVC_FACTURA FAC\r\n"
-			+ "INNER JOIN SVT_PAGO_BITACORA PB ON PB.ID_PAGO_BITACORA = FAC.ID_PAGO\r\n"
-			+ "INNER JOIN SVC_VELATORIO VEL ON VEL.ID_VELATORIO = PB.ID_VELATORIO\r\n"
-			+ "INNER JOIN SVC_ESTATUS_FACTURA ESFAC ON ESFAC.ID_ESTATUS_FACTURA = FAC.ID_ESTATUS_FACTURA";
+			+ "INNER JOIN SVC_VELATORIO VEL ON VEL.ID_VELATORIO = FAC.ID_VELATORIO\r\n"
+			+ "INNER JOIN SVC_ESTATUS_FACTURA ESFAC ON ESFAC.ID_ESTATUS_FACTURA = FAC.ID_ESTATUS_FACTURA "
+			+ " WHERE FAC.IND_ACTIVO = '1' ";
 	
 	public String consultaTabla(FiltroRequest filtros) {
 		
@@ -52,77 +53,38 @@ public class FacturacionUtil {
 	private String construyeFiltros(FiltroRequest filtros) {
 		StringBuilder query = new StringBuilder("");
 		
-		query.append( " WHERE " );
-		
-		int i=0;
-		
-		
 		if( (filtros.getIdVelatorio()!=null && !filtros.getIdVelatorio().isEmpty() )) {
-			query.append( "PB.ID_VELATORIO = '" + filtros.getIdVelatorio() + "' " );
-			i++;
+			query.append( " AND FAC.ID_VELATORIO = '" + filtros.getIdVelatorio() + "' " );
 		}
 		
 		if( (filtros.getIdFlujoPagos()!=null && !filtros.getIdFlujoPagos().isEmpty() )) {
 			
-			if(i>=1) {
-				query.append( "AND ");
+			if( filtros.getIdFlujoPagos().equals("2") ) {
+				query.append( " AND FAC.ID_FLUJO_PAGOS IN (2,3)" );
+			}else {
+				query.append( " AND FAC.ID_FLUJO_PAGOS = '" + filtros.getIdFlujoPagos() +"' " );
 			}
 			
-			if( filtros.getIdFlujoPagos().equals("2") ) {
-				query.append( "PB.ID_FLUJO_PAGOS IN (2,3)" );
-			}else {
-				query.append( "PB.ID_FLUJO_PAGOS = '" + filtros.getIdFlujoPagos() +"' " );
-			}
-			i++;
 		}
 		
 		if( (filtros.getFolio()!=null && !filtros.getFolio().isEmpty() )) {
-			
-			if(i>=1) {
-				query.append( "AND ");
-			}
-			
-			query.append( "PB.CVE_FOLIO LIKE CONCAT('" + filtros.getFolio() + "', '%') " );
-			i++;
+			query.append( " AND FAC.CVE_FOLIO LIKE CONCAT('" + filtros.getFolio() + "', '%') " );
 		}
 		
 		if( (filtros.getFolioFactura()!=null && !filtros.getFolioFactura().isEmpty() )) {
-			
-			if(i>=1) {
-				query.append( "AND ");
-			}
-			
-			query.append( "FAC.ID_FACTURA LIKE CONCAT('" + filtros.getFolioFactura() + "', '%') " );
-			i++;
+			query.append( " AND FAC.ID_FACTURA LIKE CONCAT('" + filtros.getFolioFactura() + "', '%') " );
 		}
 		
 		if( (filtros.getFolioFiscal()!=null && !filtros.getFolioFiscal().isEmpty() )) {
-			
-			if(i>=1) {
-				query.append( "AND ");
-			}
-			
-			query.append( "FAC.CVE_FOLIO_FISCAL LIKE CONCAT('" + filtros.getFolioFiscal() + "', '%') " );
-			i++;
+			query.append( " AND FAC.CVE_FOLIO_FISCAL LIKE CONCAT('" + filtros.getFolioFiscal() + "', '%') " );
 		}
 		
 		if( (filtros.getRfc()!=null && !filtros.getRfc().isEmpty() ) ) {
-			
-			if(i>=1) {
-				query.append( "AND ");
-			}
-			
-			query.append( "FAC.CVE_RFC_CONTRATANTE LIKE CONCAT('"+ filtros.getRfc() + "', '%') " );
-			i++;
+			query.append( " AND FAC.CVE_RFC_CONTRATANTE LIKE CONCAT('"+ filtros.getRfc() + "', '%') " );
 		}
 		
 		if( (filtros.getFechaInicio()!=null && !filtros.getFechaInicio().isEmpty() ) ) {
-			
-			if(i>=1) {
-				query.append( "AND ");
-			}
-			
-			query.append( "T.fecha BETWEEN '" + filtros.getFechaInicio() + "' AND '" + filtros.getFechaFin() + "' " );
+			query.append( " AND FAC.FEC_FACTURACION BETWEEN '" + filtros.getFechaInicio() + "' AND '" + filtros.getFechaFin() + "' " );
 		}
 		
 		return query.toString();
@@ -187,7 +149,8 @@ public class FacturacionUtil {
 				+ "AS totalPagado,\r\n"
 				+ "PB.DESC_VALOR AS totalServicios,\r\n"
 				+ "PER.CVE_RFC AS rfc,\r\n"
-				+ "PER.DES_CORREO AS correo\r\n"
+				+ "PER.DES_CORREO AS correo,\r\n"
+				+ "PB.ID_VELATORIO AS idVelatorio\r\n"
 				+ "FROM SVT_PAGO_BITACORA PB\r\n"
 				+ "INNER JOIN SVC_FLUJO_PAGOS FP ON FP.ID_FLUJO_PAGOS = PB.ID_FLUJO_PAGOS\r\n"
 				+ "INNER JOIN SVC_ORDEN_SERVICIO OS ON OS.ID_ORDEN_SERVICIO = PB.ID_REGISTRO\r\n"
@@ -240,6 +203,42 @@ public class FacturacionUtil {
 		query.append( idRegistro );
 		
 		return query.toString();
+	}
+	
+	public String crear(CrearFacRequest datos, Integer idUsuario) {
+		
+		QueryHelper q = new QueryHelper("INSERT INTO SVC_FACTURA");
+		q.agregarParametroValues("ID_PAGO", "'" + datos.getIdPagoBitacora() + "'");
+		q.agregarParametroValues("IMP_TOTAL_PAGADO", "'" + datos.getTotalPagado() + "'");
+		q.agregarParametroValues("IMP_TOTAL_SERV", "'" + datos.getTotalServicios() + "'");
+		q.agregarParametroValues("CVE_RFC_CONTRATANTE", "'" + datos.getRfc() + "'");
+		q.agregarParametroValues("DES_CORREOE", "'" + datos.getCorreo() + "'");
+		q.agregarParametroValues("DES_RAZON_SOCIAL", "'" + datos.getRazonSocial() + "'");
+		q.agregarParametroValues("TIPO_PERSONA", "'" + datos.getTipoPersona() + "'");
+		q.agregarParametroValues("DES_REGIMEN_FISCAL", "'" + datos.getRegimenFiscal() + "'");
+		
+		StringBuilder dom = new StringBuilder("");
+		dom.append( "C.P. " + datos.getDomicilioFiscal().getCp() + ", " );
+		dom.append( datos.getDomicilioFiscal().getCalle() + " ");
+		dom.append( datos.getDomicilioFiscal().getNexterior() + ", " );
+		dom.append( datos.getDomicilioFiscal().getDcolonia() + ", " );
+		dom.append( datos.getDomicilioFiscal().getDmunicipio() + ", " );
+		dom.append( datos.getDomicilioFiscal().getDentFed() + "." );
+		
+		q.agregarParametroValues("DES_DOMICILIO", "'" + dom.toString() + "'");
+		q.agregarParametroValues("ID_USO_CFDI", "'" + datos.getCfdi().getIdCfdi() + "'");
+		q.agregarParametroValues("ID_MET_PAGO_FAC", "'" + datos.getMetPagoFac().getIdMetPagoFac() + "'");
+		q.agregarParametroValues("ID_FOR_PAGO_FAC", "'" + datos.getForPago().getIdForPago() + "'");
+		q.agregarParametroValues("DES_OBSERVACIONES", "'" + datos.getObsAutomatica() + "'");
+		q.agregarParametroValues("DES_COMENTARIOS", "'" + datos.getObsManual() + "'");
+		q.agregarParametroValues("ID_ESTATUS_FACTURA", "'1'");
+		q.agregarParametroValues("ID_FLUJO_PAGOS", "'" + datos.getTipoFactura() + "'");
+		q.agregarParametroValues("ID_VELATORIO", "'" + datos.getIdVelatorio() + "'");
+		q.agregarParametroValues("CVE_FOLIO", "'" + datos.getFolio() + "'");
+		q.agregarParametroValues("IND_ACTIVO", "b'1'");
+		
+		return q.obtenerQueryInsertar();
+		
 	}
 	
 }
