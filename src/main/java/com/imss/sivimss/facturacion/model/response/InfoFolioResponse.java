@@ -22,6 +22,7 @@ public class InfoFolioResponse {
 	private String totalServicios;
 	private String rfc;
 	private String correo;
+	private String idVelatorio;
 	private List<Map<String, Object>> metodosPago;
 	private List<Map<String, Object>> servicios;
 }

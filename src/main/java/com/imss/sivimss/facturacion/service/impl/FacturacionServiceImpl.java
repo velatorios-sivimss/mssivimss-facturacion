@@ -19,6 +19,8 @@ import com.google.gson.Gson;
 import com.imss.sivimss.facturacion.service.FacturacionService;
 import com.imss.sivimss.facturacion.util.DatosRequest;
 import com.imss.sivimss.facturacion.util.Response;
+import com.imss.sivimss.facturacion.model.request.UsuarioDto;
+import com.imss.sivimss.facturacion.model.request.CrearFacRequest;
 import com.imss.sivimss.facturacion.model.request.FiltroRequest;
 import com.imss.sivimss.facturacion.model.request.FoliosRequest;
 import com.imss.sivimss.facturacion.model.response.InfoFolioResponse;
@@ -185,6 +187,31 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		return response;
 		
+	}
+
+	@Override
+	public Response<Object> crear(DatosRequest request, Authentication authentication) throws IOException {
+		
+		Gson gson = new Gson();
+		CrearFacRequest crearFacRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), CrearFacRequest.class);
+		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
+		Response<Object> response;
+		FacturacionUtil facturacionUtil = new FacturacionUtil();
+		String query = facturacionUtil.crear(crearFacRequest, usuarioDto.getIdUsuario());
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		// TODO Auto-generated method stub
+		//Falta el consumo de la Factura
+		
+		
+		return response;
 	}
 
 }
