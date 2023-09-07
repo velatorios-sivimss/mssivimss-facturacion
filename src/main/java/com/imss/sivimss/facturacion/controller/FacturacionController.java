@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.imss.sivimss.facturacion.service.CatalogosService;
 import com.imss.sivimss.facturacion.service.FacturacionService;
+import com.imss.sivimss.facturacion.service.FoliosService;
 import com.imss.sivimss.facturacion.service.RfcService;
 import com.imss.sivimss.facturacion.util.DatosRequest;
 import com.imss.sivimss.facturacion.util.ProviderServiceRestTemplate;
@@ -48,6 +49,9 @@ public class FacturacionController {
 	@Autowired
 	private CatalogosService catalogos;
 	
+	@Autowired
+	private FoliosService foliosService;
+	
 	private static final String CONSULTA = "consulta";
 	
 	@PostMapping("/consulta")
@@ -64,7 +68,7 @@ public class FacturacionController {
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
 	public CompletableFuture<Object> buscarFolios(@RequestBody DatosRequest request, Authentication authentication) throws IOException {
-		Response<?> response =   facturacionService.buscarFolios(request,authentication);
+		Response<?> response =   foliosService.buscarFolios(request,authentication);
 		return CompletableFuture.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
 	
@@ -73,7 +77,7 @@ public class FacturacionController {
 	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
 	@TimeLimiter(name = "msflujo")
 	public CompletableFuture<Object> infoFolio(@RequestBody DatosRequest request, Authentication authentication) throws IOException {
-		Response<?> response =   facturacionService.infoFolio(request,authentication);
+		Response<?> response =   foliosService.infoFolio(request,authentication);
 		return CompletableFuture.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
 	
