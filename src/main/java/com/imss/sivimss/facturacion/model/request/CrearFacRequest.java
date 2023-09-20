@@ -33,4 +33,6 @@ public class CrearFacRequest {
 	private ForPagoRequest forPago;
 	private String obsAutomatica;
 	private String obsManual;
+	private String fecPago;
+	private String concPago;
 }
