@@ -84,6 +84,7 @@ public class FoliosServiceImpl implements FoliosService {
 			response = infoFolioCon(foliosRequest, authentication);	
 			break;
 		case "3":
+			//response = infoFolioRenCon(foliosRequest, authentication);	
 			break;
 		case "4":
 			break;
@@ -124,6 +125,10 @@ public class FoliosServiceImpl implements FoliosService {
 				authentication);
 		
 		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		String rfc = listadatos.get(0).get("rfc").toString();
+		if( rfc.isEmpty() ) {
+			 listadatos.get(0).put("rfc", null);
+		}
 		
 		detalle = gson.fromJson(String.valueOf(listadatos.get(0)), InfoFolioResponse.class);
 		

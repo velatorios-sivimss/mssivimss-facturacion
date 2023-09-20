@@ -32,12 +32,34 @@ import com.imss.sivimss.facturacion.util.FacturacionUtil;
 import com.imss.sivimss.facturacion.util.LogUtil;
 import com.imss.sivimss.facturacion.util.ProviderServiceRestTemplate;
 
+import mx.gob.imss.cit.clienteswebservices.externo.jonima.ExecuteProcedure1;
+import mx.gob.imss.cit.clienteswebservices.externo.jonima.Services;
+import mx.gob.imss.cit.clienteswebservices.externo.jonima.Services_Service;
+
 @Log4j2
 @Service
 public class FacturacionServiceImpl implements FacturacionService {
 	
 	@Value("${endpoints.mod-catalogos}")
 	private String urlDomino;
+	
+	@Value("${jonima_user}")
+	private String user;
+
+	@Value("${jonima_pass}")
+	private String pass;
+	
+	@Value("${jonima_appName}")
+	private String appName;
+	
+	@Value("${jonima_owner}")
+	private String owner;
+	
+	@Value("${jonima_procedure_crear}")
+	private String pCrear;
+	
+	@Value("${jonima_procedure_cancelar}")
+	private String pCancelar;
 	
 	@Autowired
 	private LogUtil logUtil;
@@ -54,6 +76,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 	private static final String GENERAR_FACTURA = "Generar Factura: " ;
 	private static final String ERROR_ZIP = "Error al descomprimir el zip: ";
 	private static final String SIN_INFORMACION = "45";
+	private static final String CREAR = "/crear";
 	
 	@Override
 	public Response<Object> buscar(DatosRequest request, Authentication authentication) throws IOException {
@@ -81,7 +104,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 		Gson gson = new Gson();
 		CrearFacRequest crearFacRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), CrearFacRequest.class);
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		Response<Object> response;
+		Response<Object> response = new Response<Object>();
 		FacturacionUtil facturacionUtil = new FacturacionUtil();
 		String query = facturacionUtil.crear(crearFacRequest, usuarioDto.getIdUsuario());
 		
@@ -90,11 +113,26 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
 		
-		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CREAR, 
 				authentication);
 		
+		Integer idFactura = (Integer) response.getDatos();
+		
 		// TODO Auto-generated method stub
-		//Falta el consumo de la Factura
+		//Haciendo el consumo de la Factura
+		
+		ExecuteProcedure1 ep = new ExecuteProcedure1();
+		ep.setAppName( appName );
+		ep.setOwner( owner );
+		ep.setProcedure( pCrear );
+		
+		Services_Service service = new Services_Service();
+		Services port = service.getServicesPort();
+		String token = port.authenticate(user, pass);
+		
+		response.setCodigo(200);
+		response.setMensaje("Exito");
+		response.setDatos(token);
 		
 		
 		return response;
