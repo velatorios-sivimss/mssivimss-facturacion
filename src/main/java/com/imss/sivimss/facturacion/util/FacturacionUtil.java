@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 
 import javax.xml.bind.DatatypeConverter;
 
+import com.imss.sivimss.facturacion.model.request.CancelarFacRequest;
 import com.imss.sivimss.facturacion.model.request.CrearFacRequest;
 import com.imss.sivimss.facturacion.model.request.FiltroRequest;
 import com.imss.sivimss.facturacion.model.response.FacturaResponse;
@@ -538,5 +539,22 @@ public class FacturacionUtil {
 				+ "LIMIT 1" );
 		
 		return query.toString();
+	}
+	
+	public String cancelar(CancelarFacRequest cancelarFacRequest) {
+		
+		QueryHelper q = new QueryHelper("UPDATE SVC_FACTURA");
+		q.agregarParametroValues("ID_MOTIVO_CANCELACION", "'" + 
+		cancelarFacRequest.getMotivoCancelacion().getIdMotivoCancelacion() + "'");
+		
+		if( cancelarFacRequest.getFolioRelacionado() != null ) {
+			q.agregarParametroValues("CVE_FOLIO_RELACIONADO", "'" +
+		cancelarFacRequest.getFolioRelacionado() + "'");
+		}
+		q.agregarParametroValues("ID_ESTATUS_FACTURA", "2");
+		q.agregarParametroValues("FEC_CANCELACION", "NOW()");
+		q.addWhere("ID_FACTURA = " + cancelarFacRequest.getFolioFactura());
+	
+		return q.obtenerQueryActualizar();
 	}
 }
