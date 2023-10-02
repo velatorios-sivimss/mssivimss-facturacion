@@ -27,10 +27,13 @@ public class CrearFacRequest {
 	private String razonSocial;
 	private String tipoPersona;
 	private String regimenFiscal;
+	private String cveRegimenFiscal;
 	private UbicacionRequest domicilioFiscal;
 	private CfdiFacRequest cfdi;
 	private MetPagoFacRequest metPagoFac;
 	private ForPagoRequest forPago;
 	private String obsAutomatica;
 	private String obsManual;
+	private String fecPago;
+	private String concPago;
 }

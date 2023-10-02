@@ -10,4 +10,5 @@ public interface CatalogosService {
 	Response<Object> buscarCfdi(DatosRequest request, Authentication authentication) throws Exception;
 	Response<Object> metPago(DatosRequest request, Authentication authentication) throws Exception;
 	Response<Object> formaPago(DatosRequest request, Authentication authentication) throws Exception;
+	Response<Object> motCancelacion(DatosRequest request, Authentication authentication) throws Exception;
 }

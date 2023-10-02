@@ -65,3 +65,10 @@ resilience4j.timelimiter:
 
 formato_fecha: ${msit_FORMATO_FECHA}
 ruta-log: ${msit_RUTA_LOG}
+
+jonima_user: ${jonima_user}
+jonima_pass: ${jonima_pass}
+jonima_appName: ${jonima_appName}
+jonima_owner: ${jonima_owner}
+jonima_procedure_crear: ${jonima_procedure_crear}
+jonima_procedure_cancelar: ${jonima_procedure_cancelar}

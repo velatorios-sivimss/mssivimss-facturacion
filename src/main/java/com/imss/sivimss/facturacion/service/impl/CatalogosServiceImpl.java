@@ -120,4 +120,23 @@ public class CatalogosServiceImpl implements CatalogosService {
 		return MensajeResponseUtil.mensajeConsultaResponse( response, SIN_INFORMACION );
 	}
 
+	@Override
+	public Response<Object> motCancelacion(DatosRequest request, Authentication authentication) throws Exception {
+		
+		CatalogosUtil catalogosUtil = new CatalogosUtil();
+		String query = catalogosUtil.motCancelacion();
+		Response<Object> response = new Response<>();
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		return MensajeResponseUtil.mensajeConsultaResponse( response, SIN_INFORMACION );
+		
+	}
+
 }

@@ -49,4 +49,21 @@ public class CatalogosUtil {
 		return query.toString();
 		
 	}
+	
+	public String motCancelacion() {
+		
+		StringBuilder query = new StringBuilder("SELECT\r\n"
+				+ "ID_MOTIVO_CANCELACION AS idMotivoCancelacion,\r\n"
+				+ "CVE_MOTIVO AS clave,\r\n"
+				+ "DES_MOTIVO AS descripcion,\r\n"
+				+ "FOLIO_RELACIONADO AS aplicaFolio\r\n"
+				+ "FROM\r\n"
+				+ "SVC_MOTIVO_CANCELACION\r\n"
+				+ "WHERE\r\n"
+				+ "IND_ACTIVO = '1'\r\n"
+				+ "ORDER BY ID_MOTIVO_CANCELACION ASC");
+		
+		return query.toString();
+		
+	}
 }
