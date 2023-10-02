@@ -27,6 +27,7 @@ public class CrearFacRequest {
 	private String razonSocial;
 	private String tipoPersona;
 	private String regimenFiscal;
+	private String cveRegimenFiscal;
 	private UbicacionRequest domicilioFiscal;
 	private CfdiFacRequest cfdi;
 	private MetPagoFacRequest metPagoFac;

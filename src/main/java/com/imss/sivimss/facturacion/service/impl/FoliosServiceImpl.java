@@ -84,9 +84,10 @@ public class FoliosServiceImpl implements FoliosService {
 			response = infoFolioCon(foliosRequest, authentication);	
 			break;
 		case "3":
-			//response = infoFolioRenCon(foliosRequest, authentication);	
+			response = infoFolioRenCon(foliosRequest, authentication);	
 			break;
 		case "4":
+			response = infoFolioPA(foliosRequest, authentication);
 			break;
 		case "5":
 			break;
@@ -234,6 +235,162 @@ public class FoliosServiceImpl implements FoliosService {
 		 * SVC_CARACTERISTICAS_PRESUPUESTO y SVC_DETALLE_CARACTERISTICAS_PRESUPUESTO
 		 */
 		query = facturacionUtil.obtServiciosConv(foliosRequest.getIdRegistro());
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		detalle.setServicios(listadatos);
+		
+		response.setDatos(detalle);
+		
+		return response;
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Response<Object> infoFolioRenCon ( FoliosRequest foliosRequest, Authentication authentication )
+			throws IOException {
+		
+		Response<Object> response = null;
+		String query = "";
+		FacturacionUtil facturacionUtil = new FacturacionUtil();
+		List<Map<String, Object>> listadatos;
+		InfoFolioResponse detalle;
+		DatosRequest request = new DatosRequest();
+		Gson gson = new Gson();
+		
+		/**
+		 * Primero obtenemos la informacion basica del Pago en SVT_PAGO_BITACORA
+		 */
+		query = facturacionUtil.infoPagosRenCon(foliosRequest.getIdPagoBitacora());
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		Map<String, Object> datos = new HashMap<>();
+		datos.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		request.setDatos(datos);
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		String rfc = listadatos.get(0).get("rfc").toString();
+		if( rfc.isEmpty() ) {
+			 listadatos.get(0).put("rfc", null);
+		}
+		
+		detalle = gson.fromJson(String.valueOf(listadatos.get(0)), InfoFolioResponse.class);
+		
+		
+		/**
+		 * Despues obtenemos todos los metodos del Pagos en SVT_PAGO_DETALLE
+		 */
+		
+		query = facturacionUtil.obtMetPago(foliosRequest.getIdPagoBitacora() );
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		detalle.setMetodosPago(listadatos);
+		
+		/**
+		 * Por ultimo obtenemos la informacion de los servicios en
+		 * SVC_CARACTERISTICAS_PRESUPUESTO y SVC_DETALLE_CARACTERISTICAS_PRESUPUESTO
+		 */
+		query = facturacionUtil.obtServiciosRenConv(foliosRequest.getIdRegistro());
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		detalle.setServicios(listadatos);
+		
+		response.setDatos(detalle);
+		
+		return response;
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private Response<Object> infoFolioPA ( FoliosRequest foliosRequest, Authentication authentication )
+			throws IOException {
+		
+		Response<Object> response = null;
+		String query = "";
+		FacturacionUtil facturacionUtil = new FacturacionUtil();
+		List<Map<String, Object>> listadatos;
+		InfoFolioResponse detalle;
+		DatosRequest request = new DatosRequest();
+		Gson gson = new Gson();
+		
+		/**
+		 * Primero obtenemos la informacion basica del Pago en SVT_PAGO_BITACORA
+		 */
+		query = facturacionUtil.infoPagosPA(foliosRequest.getIdRegistro());
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		Map<String, Object> datos = new HashMap<>();
+		datos.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		request.setDatos(datos);
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		String rfc = listadatos.get(0).get("rfc").toString();
+		if( rfc.isEmpty() ) {
+			 listadatos.get(0).put("rfc", null);
+		}
+		
+		detalle = gson.fromJson(String.valueOf(listadatos.get(0)), InfoFolioResponse.class);
+		
+		
+		/**
+		 * Despues obtenemos todos los metodos del Pagos en SVT_PAGO_DETALLE
+		 */
+		
+		query = facturacionUtil.obtMetPagoPA(foliosRequest.getIdRegistro() );
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		detalle.setMetodosPago(listadatos);
+		
+		/**
+		 * Por ultimo obtenemos la informacion de los servicios en
+		 * SVC_CARACTERISTICAS_PRESUPUESTO y SVC_DETALLE_CARACTERISTICAS_PRESUPUESTO
+		 */
+		query = facturacionUtil.obtServiciosPA(foliosRequest.getIdRegistro());
 		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);

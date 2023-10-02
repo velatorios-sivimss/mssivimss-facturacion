@@ -16,6 +16,7 @@ public class RfcResponse {
 	private String razonSocial;
 	private String tipoPersona;
 	private String regimenFiscal;
+	private String cveRegimenFiscal;
 	private Ubicacion domicilioFiscal;
 	
 }

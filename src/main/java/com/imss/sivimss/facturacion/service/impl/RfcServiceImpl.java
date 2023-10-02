@@ -51,7 +51,10 @@ public class RfcServiceImpl implements RfcService {
 			rfcResponse.setTipoPersona(AppConstantes.PERSONA_MORAL);
 		}
 		
-		StringBuilder reg = new StringBuilder(salida.getReturn().getRegimen().get(0).getCRegimen());
+		String cveRegimenFiscal = salida.getReturn().getRegimen().get(0).getCRegimen();
+		rfcResponse.setCveRegimenFiscal( cveRegimenFiscal ); 
+		StringBuilder reg = new StringBuilder( cveRegimenFiscal );
+		
 		reg.append(" ");
 		reg.append(salida.getReturn().getRegimen().get(0).getDRegimen());
 		rfcResponse.setRegimenFiscal( reg.toString() );

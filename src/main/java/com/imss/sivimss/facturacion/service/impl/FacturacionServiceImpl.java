@@ -2,15 +2,21 @@ package com.imss.sivimss.facturacion.service.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 import javax.xml.bind.DatatypeConverter;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.IOUtils;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
@@ -39,6 +45,9 @@ import mx.gob.imss.cit.clienteswebservices.externo.jonima.ExecuteProcedure1;
 import mx.gob.imss.cit.clienteswebservices.externo.jonima.ExecuteProcedureResponse1;
 import mx.gob.imss.cit.clienteswebservices.externo.jonima.Services;
 import mx.gob.imss.cit.clienteswebservices.externo.jonima.Services_Service;
+
+import com.imss.sivimss.facturacion.model.response.FacturaResponse;
+import java.io.StringReader;
 
 @Log4j2
 @Service
@@ -71,7 +80,8 @@ public class FacturacionServiceImpl implements FacturacionService {
 	@Autowired
 	private ProviderServiceRestTemplate providerRestTemplate;
 	
-	private Response<Object>response;
+	@Autowired
+	private ModelMapper modelMapper;
 	
 	private static final String ERROR_INFORMACION = "52"; // Error al consultar la información.
 	private static final String CONSULTA = "consulta";
@@ -81,6 +91,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 	private static final String ERROR_ZIP = "Error al descomprimir el zip: ";
 	private static final String SIN_INFORMACION = "45";
 	private static final String CREAR = "/crear";
+	private static final String ACTUALIZAR = "/actualizar";
 	
 	@Override
 	public Response<Object> buscar(DatosRequest request, Authentication authentication) throws IOException {
@@ -117,10 +128,10 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
 		
-		//response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CREAR, 
-		//		authentication);
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CREAR, 
+				authentication);
 		
-		Integer idFactura = 5; //(Integer) response.getDatos();
+		Integer idFactura = (Integer) response.getDatos();
 		
 		// TODO Auto-generated method stub
 		//Haciendo el consumo de la Factura
@@ -278,12 +289,12 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		document = new DocumentFields();
 		document.setFieldName("forma_pago");
-		document.setFieldValue( crearFacRequest.getForPago().getDesForPago() );
+		document.setFieldValue( crearFacRequest.getForPago().getDesForPago().substring(0, 2) );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("metodo_pago");
-		document.setFieldValue( crearFacRequest.getMetPagoFac().getDesMetPagoFac() );
+		document.setFieldValue( crearFacRequest.getMetPagoFac().getDesMetPagoFac().substring(0, 3) );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
@@ -379,12 +390,13 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		document = new DocumentFields();
 		document.setFieldName("regimen_fiscal_receptor");
-		document.setFieldValue( crearFacRequest.getRegimenFiscal() );
+		document.setFieldValue( crearFacRequest.getCveRegimenFiscal() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("tipo_persona_receptor");
-		document.setFieldValue( crearFacRequest.getTipoPersona() );
+		//document.setFieldValue( crearFacRequest.getTipoPersona() );
+		document.setFieldValue( "FISICA" );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
@@ -401,11 +413,11 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		document = new DocumentFields();
 		document.setFieldName("uso_cfdi");
-		document.setFieldValue( crearFacRequest.getCfdi().getDesCfdi() );
+		document.setFieldValue( crearFacRequest.getCfdi().getDesCfdi().substring(0, 4));
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
-		document.setFieldName("cp_afiliad");
+		document.setFieldName("cp_afiliado");
 		document.setFieldValue( crearFacRequest.getDomicilioFiscal().getCp() );
 		ep.getFields().add(document);
 		
@@ -462,25 +474,53 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		ExecuteProcedureResponse1 factura = port.executeProcedure("apikey", token, ep);
 		
-		response.setCodigo(200);
-		response.setMensaje("Exito");
-		response.setDatos(factura);
+		// TODO Auto-generated method stub
+		/** Falta validar el estatus de respuesta del servicio
+		de facturaccion **/
+		
+		String respuesta = factura.getContent();		
+		
+		respuesta = respuesta.replace("<xml>", "");
+		respuesta = respuesta.replace("</xml>", "");
+		
+		respuesta = respuesta.replace("<action name=\"cfdi\" command=\"data\" debug=\"false\">", "");
+		respuesta = respuesta.replace("</action>", "");
+		
+		respuesta = respuesta.replace("<![CDATA[", "");
+		respuesta = respuesta.replace("]]>", "");
+		
+		respuesta = respuesta.replace("<row __num=\"0\">", "");
+		respuesta = respuesta.replace("</row>", "");
+		
+		FacturaResponse resPar = null;
+		
+		try {
+			
+			JAXBContext context = JAXBContext.newInstance( FacturaResponse.class );
+			Unmarshaller unmarshaller = context.createUnmarshaller();
+			StringReader reader = new StringReader(respuesta);
+			resPar = (FacturaResponse) unmarshaller.unmarshal( reader );
+			
+		} catch (JAXBException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			log.info(e.getMessage());
+		}
 		
 		
-		return response;
-	}
-
-	@Override
-	public Response<Object> generarFacturaPdf(DatosRequest request, Authentication authentication) throws IOException {
-		GenerarFacturaRequest facturaRequest  = new Gson().fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), GenerarFacturaRequest.class);
-		byte[] zipData = Base64.getDecoder().decode(facturaRequest.getBase64EncodedZip());
+		//Obtenemos el PDF
+		String pdf = "";
+		
+		byte[] zipData = Base64.getDecoder().decode( resPar.getZip() );
 		 try (ZipInputStream zipInputStream = new ZipInputStream(new ByteArrayInputStream(zipData))) {
 	            ZipEntry entry;
 	            while ((entry = zipInputStream.getNextEntry()) != null) {
 	                byte[] data = IOUtils.toByteArray(zipInputStream);
 	                byte[] encoded = Base64.getEncoder().encode(data);
 	                if( entry.getName().contains("pdf")) {
-	                	response= new Response<>(false, 200, "EXITO", new String(encoded));
+	                	
+	                	pdf = new String(encoded);
+
 	                }
 	                zipInputStream.closeEntry();
 	            }
@@ -490,7 +530,61 @@ public class FacturacionServiceImpl implements FacturacionService {
 					this.getClass().getPackage().toString(), ERROR_ZIP, GENERAR_FACTURA,authentication);
 			throw new IOException(ERROR_INFORMACION, e.getCause());
 		}
+		
+		query = facturacionUtil.actFact(idFactura, pdf, resPar);
+			
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + ACTUALIZAR, 
+				authentication);
+		
+		if( !crearFacRequest.getTipoFactura().equals("4") ) {
+			
+			query = facturacionUtil.actPB(crearFacRequest.getIdPagoBitacora(), usuarioDto.getIdUsuario());
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+			
+			request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+			
+			response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + ACTUALIZAR, 
+					authentication);
+		}
+		
+		response.setCodigo(200);
+		response.setMensaje("Exito");
+		response.setDatos(idFactura);
+		
+		
 		return response;
 	}
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response<Object> generarFacturaPdf(DatosRequest request, Authentication authentication) throws IOException {
+		
+		Gson gson = new Gson();
+		GenerarFacturaRequest generarFacturaRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), GenerarFacturaRequest.class);
+		FacturacionUtil facturacionUtil = new FacturacionUtil();
+		String query = facturacionUtil.buscarPDF(generarFacturaRequest.getIdFactura());
+		List<Map<String, Object>> listadatos;
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		Response<Object> response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		String pdf = String.valueOf(listadatos.get(0).get("pdf"));
+		response.setDatos( pdf );
+		
+		return MensajeResponseUtil.mensajeConsultaResponse( response, SIN_INFORMACION );
+	}
+	
 }

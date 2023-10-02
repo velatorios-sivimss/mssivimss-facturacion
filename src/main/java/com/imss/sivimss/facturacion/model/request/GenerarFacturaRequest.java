@@ -16,6 +16,6 @@ import lombok.Setter;
 @JsonIgnoreType(value = true)
 public class GenerarFacturaRequest {
 	
-	private String base64EncodedZip;
+	private String idFactura;
 
 }
