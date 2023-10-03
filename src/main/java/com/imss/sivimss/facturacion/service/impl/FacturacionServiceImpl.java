@@ -30,6 +30,7 @@ import com.imss.sivimss.facturacion.util.Response;
 import lombok.extern.log4j.Log4j2;
 
 import com.imss.sivimss.facturacion.model.request.UsuarioDto;
+import com.imss.sivimss.facturacion.model.request.CancelarFacRequest;
 import com.imss.sivimss.facturacion.model.request.CrearFacRequest;
 import com.imss.sivimss.facturacion.model.request.FiltroRequest;
 import com.imss.sivimss.facturacion.model.request.GenerarFacturaRequest;
@@ -585,6 +586,26 @@ public class FacturacionServiceImpl implements FacturacionService {
 		response.setDatos( pdf );
 		
 		return MensajeResponseUtil.mensajeConsultaResponse( response, SIN_INFORMACION );
+	}
+
+	@Override
+	public Response<Object> cancelar(DatosRequest request, Authentication authentication) throws IOException {
+		
+		Gson gson = new Gson();
+		CancelarFacRequest cancelarFacRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), CancelarFacRequest.class);
+		
+		FacturacionUtil facturacionUtil = new FacturacionUtil();
+		String query = facturacionUtil.cancelar(cancelarFacRequest);
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		Response<Object> response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + ACTUALIZAR, 
+				authentication);
+		
+		return response;
 	}
 	
 }
