@@ -75,6 +75,12 @@ public class FacturacionServiceImpl implements FacturacionService {
 	@Value("${jonima_procedure_cancelar}")
 	private String pCancelar;
 	
+	@Value("${rfc_fibeso}")
+	private String rfcFibeso;
+	
+	@Value("${endpoints.ms-reportes}")
+	private String urlReportes;
+	
 	@Autowired
 	private LogUtil logUtil;
 	
@@ -93,6 +99,8 @@ public class FacturacionServiceImpl implements FacturacionService {
 	private static final String SIN_INFORMACION = "45";
 	private static final String CREAR = "/crear";
 	private static final String ACTUALIZAR = "/actualizar";
+	private static final String NOM_REPORTE = "reportes/modulo/FacturasCU79.jrxml";
+	private static final String ERROR_AL_DESCARGAR_DOCUMENTO= "64"; // Error en la descarga del documento.Intenta nuevamente.
 	
 	@Override
 	public Response<Object> buscar(DatosRequest request, Authentication authentication) throws IOException {
@@ -172,42 +180,42 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		document = new DocumentFields();
 		document.setFieldName("rfc_emisor");
-		document.setFieldValue("EWE1709045U0");
+		document.setFieldValue("rfcFibeso");
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("cp_emisor");
-		document.setFieldValue("06720");
+		document.setFieldValue("06700");
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("calle_emisor");
-		document.setFieldValue("Calle de emision");
+		document.setFieldValue("ALVARO OBREGON");
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("numero_exterior_emisor");
-		document.setFieldValue("115");
+		document.setFieldValue("121");
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("numero_interior_emisor");
-		document.setFieldValue("25");
+		document.setFieldValue("903-904");
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("colonia_emisor");
-		document.setFieldValue("San Rafael");
+		document.setFieldValue("ROMA NORTE");
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("municipio_emisor");
-		document.setFieldValue("Cuahutemoc");
+		document.setFieldValue("CUAUHTEMOC");
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("estado_emisor");
-		document.setFieldValue("CDMX");
+		document.setFieldValue("CIUDAD DE MEXICO");
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
@@ -217,7 +225,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		document = new DocumentFields();
 		document.setFieldName("telefono_emisor");
-		document.setFieldValue("5553259000");
+		document.setFieldValue("5557055418");
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
@@ -606,6 +614,62 @@ public class FacturacionServiceImpl implements FacturacionService {
 				authentication);
 		
 		return response;
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response<Object> generarRF(DatosRequest request, Authentication authentication) throws IOException {
+		
+		Gson gson = new Gson();
+		FiltroRequest filtrosRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), FiltroRequest.class);
+		FacturacionUtil facturacionUtil = new FacturacionUtil();
+		String query = facturacionUtil.totalFactura(filtrosRequest);
+		Response<Object> response;
+		List<Map<String, Object>> listadatos;
+		Double total;
+		String velatorio;
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		total = (Double) listadatos.get(0).get("total");
+		
+		
+		query = facturacionUtil.nomVelatorio(filtrosRequest.getIdVelatorio());
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		velatorio = (String) listadatos.get(0).get("nombre");
+		
+		Map<String, Object> envioDatos = facturacionUtil.reporteCU079(filtrosRequest, NOM_REPORTE);
+		envioDatos.put("total", total.toString() );
+		envioDatos.put("velatorio", velatorio );
+		
+		if(filtrosRequest.getTipoReporte().equals("xls")) {
+            envioDatos.put("IS_IGNORE_PAGINATION", true);
+        }
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + envioDatos, authentication);
+		
+		response = providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes,authentication);
+		
+		response = MensajeResponseUtil.mensajeConsultaResponse(response, ERROR_AL_DESCARGAR_DOCUMENTO);;
+
+		return response;
+		
 	}
 	
 }

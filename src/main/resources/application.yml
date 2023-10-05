@@ -72,3 +72,4 @@ jonima_appName: ${msit_JONIMA_APPNAME}
 jonima_owner: ${msit_JONIMA_OWNER}
 jonima_procedure_crear: ${msit_JONIMA_PROCEDURE_CREAR}
 jonima_procedure_cancelar: ${msit_JONIMA_PROCEDURE_CANCELAR}
+rfc_fibeso: ${msit_RFC_FIBESO}
