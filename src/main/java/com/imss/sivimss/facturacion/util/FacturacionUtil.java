@@ -1,6 +1,8 @@
 package com.imss.sivimss.facturacion.util;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.xml.bind.DatatypeConverter;
 
@@ -11,21 +13,17 @@ import com.imss.sivimss.facturacion.model.response.FacturaResponse;
 
 public class FacturacionUtil {
 	
-	private static String CONSULTA_TABLA = "SELECT \r\n"
-			+ "VEL.DES_VELATORIO AS velatorio,\r\n"
-			+ "FAC.ID_VELATORIO AS idVelatorio,\r\n"
-			+ "FAC.CVE_FOLIO AS folio,\r\n"
-			+ "FAC.ID_FACTURA AS folioFactura,\r\n"
+	private static String CONSULTA_TABLA = "SELECT\r\n"
 			+ "FAC.FEC_FACTURACION AS fechaFactura,\r\n"
-			+ "FAC.CVE_FOLIO_FISCAL AS folioFiscal,\r\n"
+			+ "FAC.ID_FACTURA AS folioFactura,\r\n"
+			+ "FAC.CVE_FOLIO AS folio,\r\n"
+			+ "FAC.IMP_TOTAL_SERV AS importe,\r\n"
+			+ "FAC.DES_RAZON_SOCIAL AS contratante,\r\n"
 			+ "FAC.CVE_RFC_CONTRATANTE AS rfc,\r\n"
-			+ "FAC.DES_RAZON_SOCIAL AS razonSocial,\r\n"
-			+ "ESFAC.DES_ESTATUS AS estatusFactura,\r\n"
-			+ "FAC.ID_FLUJO_PAGOS AS idFlujoPagos\r\n"
+			+ "ESFAC.DES_ESTATUS AS estatusFactura\r\n"
 			+ "FROM SVC_FACTURA FAC\r\n"
-			+ "INNER JOIN SVC_VELATORIO VEL ON VEL.ID_VELATORIO = FAC.ID_VELATORIO\r\n"
-			+ "INNER JOIN SVC_ESTATUS_FACTURA ESFAC ON ESFAC.ID_ESTATUS_FACTURA = FAC.ID_ESTATUS_FACTURA "
-			+ " WHERE FAC.IND_ACTIVO = '1' ";
+			+ "INNER JOIN SVC_ESTATUS_FACTURA ESFAC ON ESFAC.ID_ESTATUS_FACTURA = FAC.ID_ESTATUS_FACTURA \r\n"
+			+ " WHERE FAC.IND_ACTIVO = '1' \r\n";
 	
 	public String consultaTabla(FiltroRequest filtros) {
 		
@@ -556,5 +554,49 @@ public class FacturacionUtil {
 		q.addWhere("ID_FACTURA = " + cancelarFacRequest.getFolioFactura());
 	
 		return q.obtenerQueryActualizar();
+	}
+	
+	public Map<String, Object> reporteCU079(FiltroRequest filtros, String nombrePdfReportes) {
+		Map<String, Object> envioDatos = new HashMap<>();
+		StringBuilder condicion = new StringBuilder(" ");
+		
+		condicion.append( " AND FAC.ID_VELATORIO = '" + filtros.getIdVelatorio() + "' " );
+		condicion.append( " AND FAC.FEC_FACTURACION BETWEEN '" + filtros.getFechaInicio() + "' AND '" + filtros.getFechaFin() + "' " );
+		
+		envioDatos.put("periodo", filtros.getFechaInicio() + " - " + filtros.getFechaFin());
+		envioDatos.put("filtros", condicion);
+		envioDatos.put("tipoReporte", filtros.getTipoReporte());
+		envioDatos.put("rutaNombreReporte", nombrePdfReportes);
+
+		return envioDatos;
+	}
+	
+	public String totalFactura(FiltroRequest filtros) {
+		
+		StringBuilder query = new StringBuilder("SELECT \r\n"
+				+ "IFNULL(SUM( IMP_TOTAL_SERV ), 0) AS total\r\n"
+				+ "FROM\r\n"
+				+ "SVC_FACTURA FAC\r\n"
+				+ "WHERE IND_ACTIVO = '1' ");
+		
+		if( validarWhere(filtros) ) {
+			query.append( construyeFiltros(filtros) );
+		}
+		
+		return query.toString();
+	}
+	
+	public String nomVelatorio(String idVelatorio) {
+		
+		StringBuilder query = new StringBuilder("SELECT\r\n"
+				+ "DES_VELATORIO AS nombre\r\n"
+				+ "FROM \r\n"
+				+ "SVC_VELATORIO\r\n"
+				+ "WHERE\r\n"
+				+ "ID_VELATORIO = ");
+		
+		query.append( idVelatorio );
+		
+		return query.toString();
 	}
 }

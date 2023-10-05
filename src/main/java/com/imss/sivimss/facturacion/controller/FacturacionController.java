@@ -153,6 +153,15 @@ public class FacturacionController {
 		return CompletableFuture.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
 	}
 	
+	@PostMapping("/generar/reporte/facturas")
+	@CircuitBreaker(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@Retry(name = "msflujo", fallbackMethod = "fallbackGenerico")
+	@TimeLimiter(name = "msflujo")
+	public CompletableFuture<Object> generarRF(@RequestBody DatosRequest request, Authentication authentication) throws IOException {
+		Response<?> response =   facturacionService.generarRF(request,authentication);
+		return CompletableFuture.supplyAsync(() -> new ResponseEntity<>(response, HttpStatus.valueOf(response.getCodigo())));
+	}
+	
 	/**
 	 * fallbacks generico
 	 * 
