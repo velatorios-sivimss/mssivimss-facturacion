@@ -14,16 +14,18 @@ import com.imss.sivimss.facturacion.model.response.FacturaResponse;
 public class FacturacionUtil {
 	
 	private static String CONSULTA_TABLA = "SELECT\r\n"
-			+ "FAC.FEC_FACTURACION AS fechaFactura,\r\n"
-			+ "FAC.ID_FACTURA AS folioFactura,\r\n"
+			+ "VEL.DES_VELATORIO AS nomVelatorio,\r\n"
 			+ "FAC.CVE_FOLIO AS folio,\r\n"
-			+ "FAC.IMP_TOTAL_SERV AS importe,\r\n"
-			+ "FAC.DES_RAZON_SOCIAL AS contratante,\r\n"
+			+ "FAC.ID_FACTURA AS folioFactura,\r\n"
+			+ "FAC.FEC_FACTURACION AS fechaFactura,\r\n"
+			+ "FAC.CVE_FOLIO_FISCAL AS folioFiscal,\r\n"
 			+ "FAC.CVE_RFC_CONTRATANTE AS rfc,\r\n"
+			+ "FAC.DES_RAZON_SOCIAL AS razonSocial,\r\n"
 			+ "ESFAC.DES_ESTATUS AS estatusFactura\r\n"
 			+ "FROM SVC_FACTURA FAC\r\n"
-			+ "INNER JOIN SVC_ESTATUS_FACTURA ESFAC ON ESFAC.ID_ESTATUS_FACTURA = FAC.ID_ESTATUS_FACTURA \r\n"
-			+ " WHERE FAC.IND_ACTIVO = '1' \r\n";
+			+ "INNER JOIN SVC_ESTATUS_FACTURA ESFAC ON ESFAC.ID_ESTATUS_FACTURA = FAC.ID_ESTATUS_FACTURA\r\n"
+			+ "INNER JOIN SVC_VELATORIO VEL ON VEL.ID_VELATORIO = FAC.ID_VELATORIO\r\n"
+			+ "WHERE FAC.IND_ACTIVO = '1' \r\n";
 	
 	public String consultaTabla(FiltroRequest filtros) {
 		
@@ -321,6 +323,7 @@ public class FacturacionUtil {
 		
 	}
 	
+	/**
 	public String obtServiciosConv(String idRegistro) {
 		
 		StringBuilder query = new StringBuilder("");
@@ -339,6 +342,28 @@ public class FacturacionUtil {
 				+ "LEFT JOIN SVT_ARTICULO AR ON AR.ID_ARTICULO = DCP.ID_ARTICULO\r\n"
 				+ "LEFT JOIN SVC_CATEGORIA_ARTICULO CA ON CA.ID_CATEGORIA_ARTICULO = AR.ID_CATEGORIA_ARTICULO\r\n"
 				+ "LEFT JOIN SVT_SERVICIO SER ON SER.ID_SERVICIO = DCP.ID_SERVICIO\r\n"
+				+ "WHERE\r\n"
+				+ "CPC.ID_CONVENIO_PF = " );
+		query.append( idRegistro );
+		
+		return query.toString();
+	}
+	**/
+	
+	public String obtServiciosConv(String idRegistro) {
+		
+		StringBuilder query = new StringBuilder("");
+		
+		query.append( "SELECT\r\n"
+				+ "PAQ.DES_NOM_PAQUETE AS grupo,\r\n"
+				+ "PAQ.DES_PAQUETE AS concepto,\r\n"
+				+ "'1' AS cantidad,\r\n"
+				+ "'' AS claveSAT,\r\n"
+				+ "PAQ.MON_PRECIO AS importe,\r\n"
+				+ "PAQ.MON_PRECIO AS total\r\n"
+				+ "FROM\r\n"
+				+ "SVT_CONTRATANTE_PAQUETE_CONVENIO_PF CPC\r\n"
+				+ "INNER JOIN SVT_PAQUETE PAQ ON PAQ.ID_PAQUETE = CPC.ID_PAQUETE\r\n"
 				+ "WHERE\r\n"
 				+ "CPC.ID_CONVENIO_PF = " );
 		query.append( idRegistro );
@@ -388,20 +413,16 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "IFNULL(CA.DES_CATEGORIA_ARTICULO, SER.REF_SERVICIO) AS grupo,\r\n"
-				+ "IFNULL(AR.DES_ARTICULO, SER.DES_SERVICIO) AS concepto,\r\n"
-				+ "DCP.CAN_DET_PRESUP AS cantidad,\r\n"
+				+ "PAQ.DES_NOM_PAQUETE AS grupo,\r\n"
+				+ "PAQ.DES_PAQUETE AS concepto,\r\n"
+				+ "'1' AS cantidad,\r\n"
 				+ "'' AS claveSAT,\r\n"
-				+ "DCP.IMP_CARAC_PRESUP AS importe,\r\n"
-				+ "DCP.IMP_CARAC_PRESUP AS total\r\n"
+				+ "PAQ.MON_PRECIO AS importe,\r\n"
+				+ "PAQ.MON_PRECIO AS total\r\n"
 				+ "FROM\r\n"
 				+ "SVT_CONTRATANTE_PAQUETE_CONVENIO_PF CPC\r\n"
-				+ "INNER JOIN SVT_RENOVACION_CONVENIO_PF RCON ON RCON.ID_CONVENIO_PF = CPC.ID_CONVENIO_PF\r\n"		
-				+ "INNER JOIN SVC_CARAC_PRESUPUESTO CP ON CP.ID_PAQUETE = CPC.ID_PAQUETE\r\n"
-				+ "INNER JOIN SVC_DETALLE_CARAC_PRESUP DCP ON DCP.ID_CARAC_PRESUPUESTO = CP.ID_CARAC_PRESUPUESTO\r\n"
-				+ "LEFT JOIN SVT_ARTICULO AR ON AR.ID_ARTICULO = DCP.ID_ARTICULO\r\n"
-				+ "LEFT JOIN SVC_CATEGORIA_ARTICULO CA ON CA.ID_CATEGORIA_ARTICULO = AR.ID_CATEGORIA_ARTICULO\r\n"
-				+ "LEFT JOIN SVT_SERVICIO SER ON SER.ID_SERVICIO = DCP.ID_SERVICIO\r\n"
+				+ "INNER JOIN SVT_PAQUETE PAQ ON PAQ.ID_PAQUETE = CPC.ID_PAQUETE\r\n"
+				+ "INNER JOIN SVT_RENOVACION_CONVENIO_PF RCON ON RCON.ID_CONVENIO_PF = CPC.ID_CONVENIO_PF\r\n"
 				+ "WHERE\r\n"
 				+ "RCON.ID_RENOVACION_CONVENIO_PF = " );
 		query.append( idRegistro );
