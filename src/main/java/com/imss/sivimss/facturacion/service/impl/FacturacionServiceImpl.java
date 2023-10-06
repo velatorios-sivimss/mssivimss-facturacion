@@ -48,6 +48,8 @@ import mx.gob.imss.cit.clienteswebservices.externo.jonima.Services;
 import mx.gob.imss.cit.clienteswebservices.externo.jonima.Services_Service;
 
 import com.imss.sivimss.facturacion.model.response.FacturaResponse;
+import com.imss.sivimss.facturacion.model.response.VelatorioResponse;
+
 import java.io.StringReader;
 
 @Log4j2
@@ -122,6 +124,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 	
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response<Object> crear(DatosRequest request, Authentication authentication) throws IOException {
 		
@@ -131,6 +134,8 @@ public class FacturacionServiceImpl implements FacturacionService {
 		Response<Object> response = new Response<Object>();
 		FacturacionUtil facturacionUtil = new FacturacionUtil();
 		String query = facturacionUtil.crear(crearFacRequest, usuarioDto.getIdUsuario());
+		List<Map<String, Object>> listadatos;
+		VelatorioResponse velatorio;
 		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
@@ -141,8 +146,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 				authentication);
 		
 		Integer idFactura = (Integer) response.getDatos();
-		
-		// TODO Auto-generated method stub
+
 		//Haciendo el consumo de la Factura
 		
 		ExecuteProcedure1 ep = new ExecuteProcedure1();
@@ -170,8 +174,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 		document.setFieldValue("A");
 		ep.getFields().add(document);
 		
-		// TODO Auto-generated method stub
-		//Revisar datos de Emisor
+		//Datos de Emisor
 		
 		document = new DocumentFields();
 		document.setFieldName("nombre_emisor");
@@ -238,47 +241,61 @@ public class FacturacionServiceImpl implements FacturacionService {
 		document.setFieldValue( crearFacRequest.getIdVelatorio() );
 		ep.getFields().add(document);
 		
-		// TODO Auto-generated method stub
-		// Falta consultar la informacion del Velatorio
+		// Consultando la informacion del Velatorio
+		
+		query = facturacionUtil.datosVelatorio( crearFacRequest.getIdVelatorio() );
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		velatorio = gson.fromJson(String.valueOf(listadatos.get(0)), VelatorioResponse.class);//(VelatorioResponse) listadatos.get(0);
+		
 		
 		document = new DocumentFields();
 		document.setFieldName("velatorio");
-		document.setFieldValue( "VELATORIO 1" );
+		document.setFieldValue( velatorio.getNomVelatorio());
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("cp_velatorio");
-		document.setFieldValue( "06720" );
+		document.setFieldValue( velatorio.getCp() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("calle_velatorio");
-		document.setFieldValue( "Dr. RAFAEL LUCIO" );
+		document.setFieldValue( velatorio.getCalle() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("numero_exterior_velatorio");
-		document.setFieldValue( "237" );
+		document.setFieldValue( velatorio.getNumExterior() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("numero_interior_velatorio");
-		document.setFieldValue( "" );
+		document.setFieldValue( velatorio.getNumInterior() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("colonia_velatorio");
-		document.setFieldValue( "Doctores" );
+		document.setFieldValue( velatorio.getColonia() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("municipio_velatorio");
-		document.setFieldValue( "CUAUHTEMOC" );
+		document.setFieldValue( velatorio.getMunicipio() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("estado_velatorio");
-		document.setFieldValue( "CIUDAD DE MEXICO" );
+		document.setFieldValue( velatorio.getEstado() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
@@ -346,7 +363,6 @@ public class FacturacionServiceImpl implements FacturacionService {
 			document.setFieldValue( ser.getImporte() );
 			ep.getFields().add(document);
 			
-			// TODO Auto-generated method stub
 			// Validar que es unidad
 			document = new DocumentFields();
 			document.setFieldName("unidad");
@@ -404,8 +420,13 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		document = new DocumentFields();
 		document.setFieldName("tipo_persona_receptor");
-		//document.setFieldValue( crearFacRequest.getTipoPersona() );
-		document.setFieldValue( "FISICA" );
+		
+		if( crearFacRequest.getTipoPersona().contains("moral") ) {
+			document.setFieldValue( "MORAL" );
+		}else {
+			document.setFieldValue( "FISICA" );
+		}
+		
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
@@ -413,11 +434,9 @@ public class FacturacionServiceImpl implements FacturacionService {
 		document.setFieldValue( crearFacRequest.getCorreo() );
 		ep.getFields().add(document);
 		
-		// TODO Auto-generated method stub
-		// Validar que es giro receptor
 		document = new DocumentFields();
 		document.setFieldName("giro_receptor");
-		document.setFieldValue( "EMPLEADO" );
+		document.setFieldValue( crearFacRequest.getRegimenFiscal() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
@@ -483,10 +502,6 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		ExecuteProcedureResponse1 factura = port.executeProcedure("apikey", token, ep);
 		
-		// TODO Auto-generated method stub
-		/** Falta validar el estatus de respuesta del servicio
-		de facturaccion **/
-		
 		String respuesta = factura.getContent();		
 		
 		respuesta = respuesta.replace("<xml>", "");
@@ -511,11 +526,26 @@ public class FacturacionServiceImpl implements FacturacionService {
 			resPar = (FacturaResponse) unmarshaller.unmarshal( reader );
 			
 		} catch (JAXBException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 			log.info(e.getMessage());
+			throw new IOException("Error al generar la factura");
 		}
 		
+		if( !resPar.getCodigo_error().equals("") ) {
+			
+			//Eliminamos el reguistro anterior
+			query = facturacionUtil.canFact(idFactura);
+			
+			logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+					this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+			
+			request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+			
+			response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + ACTUALIZAR, 
+					authentication);
+			
+			throw new IOException("Error al generar la factura");
+			
+		}
 		
 		//Obtenemos el PDF
 		String pdf = "";
