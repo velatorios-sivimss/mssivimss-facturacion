@@ -610,11 +610,42 @@ public class FacturacionUtil {
 	public String nomVelatorio(String idVelatorio) {
 		
 		StringBuilder query = new StringBuilder("SELECT\r\n"
-				+ "DES_VELATORIO AS nombre\r\n"
+				+ "CONCAT('\"', DES_VELATORIO,'\"') AS nombre\r\n"
 				+ "FROM \r\n"
 				+ "SVC_VELATORIO\r\n"
 				+ "WHERE\r\n"
 				+ "ID_VELATORIO = ");
+		
+		query.append( idVelatorio );
+		
+		return query.toString();
+	}
+	
+	public String canFact(Integer idFactura) {
+		
+		QueryHelper q = new QueryHelper("UPDATE SVC_FACTURA");
+		q.agregarParametroValues("IND_ACTIVO", "b'0'");
+		q.addWhere("ID_FACTURA = " + idFactura);
+		
+		return q.obtenerQueryActualizar();
+	}
+	
+	public String datosVelatorio(String idVelatorio) {
+		
+		StringBuilder query = new StringBuilder("SELECT\r\n"
+				+ "CONCAT('\"', VEL.DES_VELATORIO,'\"')  AS nomVelatorio,\r\n"
+				+ "CONCAT('\"', DOM.DES_CP, '\"') AS cp,\r\n"
+				+ "CONCAT('\"', DOM.DES_CALLE, '\"') AS calle,\r\n"
+				+ "CONCAT('\"', DOM.NUM_EXTERIOR, '\"') AS numExterior,\r\n"
+				+ "CONCAT('\"', DOM.NUM_INTERIOR, '\"') AS numInterior,\r\n"
+				+ "CONCAT('\"', DOM.DES_COLONIA, '\"') AS colonia,\r\n"
+				+ "CONCAT('\"', DOM.DES_MUNICIPIO, '\"') AS municipio,\r\n"
+				+ "CONCAT('\"', DOM.DES_ESTADO, '\"') AS estado\r\n"
+				+ "FROM\r\n"
+				+ "SVC_VELATORIO VEL\r\n"
+				+ "LEFT JOIN SVT_DOMICILIO DOM ON DOM.ID_DOMICILIO = VEL.ID_DOMICILIO\r\n"
+				+ "WHERE\r\n"
+				+ "ID_VELATORIO =");
 		
 		query.append( idVelatorio );
 		
