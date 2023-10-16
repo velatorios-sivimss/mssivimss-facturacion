@@ -584,7 +584,16 @@ public class FacturacionUtil {
 		condicion.append( " AND FAC.ID_VELATORIO = '" + filtros.getIdVelatorio() + "' " );
 		condicion.append( " AND FAC.FEC_FACTURACION BETWEEN '" + filtros.getFechaInicio() + "' AND '" + filtros.getFechaFin() + "' " );
 		
-		envioDatos.put("periodo", filtros.getFechaInicio() + " - " + filtros.getFechaFin());
+		if( filtros.getFechaInicio() == null) {
+			
+			envioDatos.put("periodo", " " );
+			
+		}else {
+			
+			envioDatos.put("periodo", filtros.getFechaInicio() + " - " + filtros.getFechaFin());
+		
+		}
+		
 		envioDatos.put("filtros", condicion);
 		envioDatos.put("tipoReporte", filtros.getTipoReporte());
 		envioDatos.put("rutaNombreReporte", nombrePdfReportes);
