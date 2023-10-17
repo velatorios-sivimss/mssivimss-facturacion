@@ -631,9 +631,10 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		Gson gson = new Gson();
 		CancelarFacRequest cancelarFacRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), CancelarFacRequest.class);
+		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
 		
 		FacturacionUtil facturacionUtil = new FacturacionUtil();
-		String query = facturacionUtil.cancelar(cancelarFacRequest);
+		String query = facturacionUtil.cancelar(cancelarFacRequest, usuarioDto.getIdUsuario());
 		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);

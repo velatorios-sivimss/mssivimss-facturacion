@@ -210,7 +210,7 @@ public class FacturacionUtil {
 				+ "FROM SVT_PAGO_BITACORA PB\r\n"
 				+ "INNER JOIN SVC_FLUJO_PAGOS FP ON FP.ID_FLUJO_PAGOS = PB.ID_FLUJO_PAGOS\r\n"
 				+ "INNER JOIN SVT_CONVENIO_PF CONV ON CONV.ID_CONVENIO_PF = PB.ID_REGISTRO\r\n"
-				+ "INNER JOIN SVT_CONTRATANTE_PAQUETE_CONVENIO_PF CPC ON CPC.ID_CONVENIO_PF = CONV.ID_CONVENIO_PF\r\n"
+				+ "INNER JOIN SVT_CONTRA_PAQ_CONVENIO_PF CPC ON CPC.ID_CONVENIO_PF = CONV.ID_CONVENIO_PF\r\n"
 				+ "INNER JOIN SVC_CONTRATANTE CON ON CON.ID_CONTRATANTE = CPC.ID_CONTRATANTE\r\n"
 				+ "INNER JOIN SVC_PERSONA PER ON PER.ID_PERSONA = CON.ID_PERSONA "
 				+ "WHERE\r\n"
@@ -255,32 +255,6 @@ public class FacturacionUtil {
 		return query.toString();
 	}
 	
-	/**
-	public String obtServiciosODS(String idRegistro) {
-		
-		StringBuilder query = new StringBuilder("");
-		
-		query.append( "SELECT\r\n"
-				+ "IFNULL(CA.DES_CATEGORIA_ARTICULO, SER.REF_SERVICIO) AS grupo,\r\n"
-				+ "IFNULL(AR.DES_ARTICULO, SER.DES_SERVICIO) AS concepto,\r\n"
-				+ "DCP.CAN_DET_PRESUP AS cantidad,\r\n"
-				+ "'' AS claveSAT,\r\n"
-				+ "DCP.IMP_CARAC_PRESUP AS importe,\r\n"
-				+ "DCP.IMP_CARAC_PRESUP AS total\r\n"
-				+ "FROM\r\n"
-				+ "SVC_CARAC_PRESUPUESTO CP\r\n"
-				+ "INNER JOIN SVC_DETALLE_CARAC_PRESUP DCP ON DCP.ID_CARAC_PRESUPUESTO = CP.ID_CARAC_PRESUPUESTO\r\n"
-				+ "LEFT JOIN SVT_ARTICULO AR ON AR.ID_ARTICULO = DCP.ID_ARTICULO\r\n"
-				+ "LEFT JOIN SVC_CATEGORIA_ARTICULO CA ON CA.ID_CATEGORIA_ARTICULO = AR.ID_CATEGORIA_ARTICULO\r\n"
-				+ "LEFT JOIN SVT_SERVICIO SER ON SER.ID_SERVICIO = DCP.ID_SERVICIO\r\n"
-				+ "WHERE\r\n"
-				+ "CP.ID_ORDEN_SERVICIO = " );
-		query.append( idRegistro );
-		
-		return query.toString();
-	}
-	**/
-	
 	public String crear(CrearFacRequest datos, Integer idUsuario) {
 		
 		QueryHelper q = new QueryHelper("INSERT INTO SVC_FACTURA");
@@ -318,51 +292,25 @@ public class FacturacionUtil {
 		q.agregarParametroValues("ID_VELATORIO", "'" + datos.getIdVelatorio() + "'");
 		q.agregarParametroValues("CVE_FOLIO", "'" + datos.getFolio() + "'");
 		q.agregarParametroValues("IND_ACTIVO", "b'1'");
+		q.agregarParametroValues("ID_USUARIO_ALTA", idUsuario.toString());
 		
 		return q.obtenerQueryInsertar();
 		
 	}
 	
-	/**
 	public String obtServiciosConv(String idRegistro) {
 		
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "IFNULL(CA.DES_CATEGORIA_ARTICULO, SER.REF_SERVICIO) AS grupo,\r\n"
-				+ "IFNULL(AR.DES_ARTICULO, SER.DES_SERVICIO) AS concepto,\r\n"
-				+ "DCP.CAN_DET_PRESUP AS cantidad,\r\n"
-				+ "'' AS claveSAT,\r\n"
-				+ "DCP.IMP_CARAC_PRESUP AS importe,\r\n"
-				+ "DCP.IMP_CARAC_PRESUP AS total\r\n"
-				+ "FROM\r\n"
-				+ "SVT_CONTRATANTE_PAQUETE_CONVENIO_PF CPC\r\n"
-				+ "INNER JOIN SVC_CARAC_PRESUPUESTO CP ON CP.ID_PAQUETE = CPC.ID_PAQUETE\r\n"
-				+ "INNER JOIN SVC_DETALLE_CARAC_PRESUP DCP ON DCP.ID_CARAC_PRESUPUESTO = CP.ID_CARAC_PRESUPUESTO\r\n"
-				+ "LEFT JOIN SVT_ARTICULO AR ON AR.ID_ARTICULO = DCP.ID_ARTICULO\r\n"
-				+ "LEFT JOIN SVC_CATEGORIA_ARTICULO CA ON CA.ID_CATEGORIA_ARTICULO = AR.ID_CATEGORIA_ARTICULO\r\n"
-				+ "LEFT JOIN SVT_SERVICIO SER ON SER.ID_SERVICIO = DCP.ID_SERVICIO\r\n"
-				+ "WHERE\r\n"
-				+ "CPC.ID_CONVENIO_PF = " );
-		query.append( idRegistro );
-		
-		return query.toString();
-	}
-	**/
-	
-	public String obtServiciosConv(String idRegistro) {
-		
-		StringBuilder query = new StringBuilder("");
-		
-		query.append( "SELECT\r\n"
-				+ "PAQ.DES_NOM_PAQUETE AS grupo,\r\n"
-				+ "PAQ.DES_PAQUETE AS concepto,\r\n"
+				+ "PAQ.REF_PAQUETE_NOMBRE AS grupo,\r\n"
+				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "'' AS claveSAT,\r\n"
 				+ "PAQ.MON_PRECIO AS importe,\r\n"
 				+ "PAQ.MON_PRECIO AS total\r\n"
 				+ "FROM\r\n"
-				+ "SVT_CONTRATANTE_PAQUETE_CONVENIO_PF CPC\r\n"
+				+ "SVT_CONTRA_PAQ_CONVENIO_PF CPC\r\n"
 				+ "INNER JOIN SVT_PAQUETE PAQ ON PAQ.ID_PAQUETE = CPC.ID_PAQUETE\r\n"
 				+ "WHERE\r\n"
 				+ "CPC.ID_CONVENIO_PF = " );
@@ -397,7 +345,7 @@ public class FacturacionUtil {
 				+ "INNER JOIN SVC_FLUJO_PAGOS FP ON FP.ID_FLUJO_PAGOS = PB.ID_FLUJO_PAGOS\r\n"
 				+ "INNER JOIN SVT_RENOVACION_CONVENIO_PF RCON ON RCON.ID_RENOVACION_CONVENIO_PF = PB.ID_REGISTRO\r\n"
 				+ "INNER JOIN SVT_CONVENIO_PF CONV ON CONV.ID_CONVENIO_PF = RCON.ID_CONVENIO_PF\r\n"
-				+ "INNER JOIN SVT_CONTRATANTE_PAQUETE_CONVENIO_PF CPC ON CPC.ID_CONVENIO_PF = CONV.ID_CONVENIO_PF\r\n"
+				+ "INNER JOIN SVT_CONTRA_PAQ_CONVENIO_PF CPC ON CPC.ID_CONVENIO_PF = CONV.ID_CONVENIO_PF\r\n"
 				+ "INNER JOIN SVC_CONTRATANTE CON ON CON.ID_CONTRATANTE = CPC.ID_CONTRATANTE\r\n"
 				+ "INNER JOIN SVC_PERSONA PER ON PER.ID_PERSONA = CON.ID_PERSONA "
 				+ "WHERE\r\n"
@@ -413,14 +361,14 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "PAQ.DES_NOM_PAQUETE AS grupo,\r\n"
-				+ "PAQ.DES_PAQUETE AS concepto,\r\n"
+				+ "PAQ.REF_PAQUETE_NOMBRE AS grupo,\r\n"
+				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "'' AS claveSAT,\r\n"
 				+ "PAQ.MON_PRECIO AS importe,\r\n"
 				+ "PAQ.MON_PRECIO AS total\r\n"
 				+ "FROM\r\n"
-				+ "SVT_CONTRATANTE_PAQUETE_CONVENIO_PF CPC\r\n"
+				+ "SVT_CONTRA_PAQ_CONVENIO_PF CPC\r\n"
 				+ "INNER JOIN SVT_PAQUETE PAQ ON PAQ.ID_PAQUETE = CPC.ID_PAQUETE\r\n"
 				+ "INNER JOIN SVT_RENOVACION_CONVENIO_PF RCON ON RCON.ID_CONVENIO_PF = CPC.ID_CONVENIO_PF\r\n"
 				+ "WHERE\r\n"
@@ -477,8 +425,8 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "PAQ.DES_NOM_PAQUETE AS grupo,\r\n"
-				+ "PAQ.DES_PAQUETE AS concepto,\r\n"
+				+ "PAQ.REF_PAQUETE_NOMBRE AS grupo,\r\n"
+				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "'' AS claveSAT,\r\n"
 				+ "PAQ.MON_PRECIO AS importe,\r\n"
@@ -506,8 +454,8 @@ public class FacturacionUtil {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		q.agregarParametroValues("DESC_CADENA_XML", "'" + decode + "'");
-		q.agregarParametroValues("DESC_CADENA_PDF", "'" + pdf + "'");
+		q.agregarParametroValues("REF_CADENA_XML", "'" + decode + "'");
+		q.agregarParametroValues("REF_CADENA_PDF", "'" + pdf + "'");
 		q.addWhere("ID_FACTURA = " + idFactura);
 		
 		return q.obtenerQueryActualizar();
@@ -529,8 +477,8 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "PAQ.DES_NOM_PAQUETE AS grupo,\r\n"
-				+ "PAQ.DES_PAQUETE AS concepto,\r\n"
+				+ "PAQ.REF_PAQUETE_NOMBRE AS grupo,\r\n"
+				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "'' AS claveSAT,\r\n"
 				+ "PAQ.MON_PRECIO AS importe,\r\n"
@@ -549,7 +497,7 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "DESC_CADENA_PDF AS pdf\r\n"
+				+ "REF_CADENA_PDF AS pdf\r\n"
 				+ "FROM SVC_FACTURA\r\n"
 				+ "WHERE\r\n"
 				+ "ID_FACTURA = "
@@ -560,7 +508,7 @@ public class FacturacionUtil {
 		return query.toString();
 	}
 	
-	public String cancelar(CancelarFacRequest cancelarFacRequest) {
+	public String cancelar(CancelarFacRequest cancelarFacRequest, Integer idUsuario) {
 		
 		QueryHelper q = new QueryHelper("UPDATE SVC_FACTURA");
 		q.agregarParametroValues("ID_MOTIVO_CANCELACION", "'" + 
@@ -572,8 +520,10 @@ public class FacturacionUtil {
 		}
 		q.agregarParametroValues("ID_ESTATUS_FACTURA", "2");
 		q.agregarParametroValues("FEC_CANCELACION", "NOW()");
+		q.agregarParametroValues("FEC_ACTUALIZACION", "NOW()");
+		q.agregarParametroValues("ID_USUARIO_MODIFICA", "NOW()");
+		
 		q.addWhere("ID_FACTURA = " + cancelarFacRequest.getFolioFactura());
-	
 		return q.obtenerQueryActualizar();
 	}
 	

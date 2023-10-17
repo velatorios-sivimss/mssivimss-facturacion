@@ -7,7 +7,7 @@ public class CatalogosUtil {
 		StringBuilder query = new StringBuilder("");
 		query.append( "SELECT\r\n"
 				+ "ID_CFDI AS idCfdi,\r\n"
-				+ "CONCAT(CVE_USO_CFDI, ' ', DESC_CFDI) AS desCfdi\r\n"
+				+ "CONCAT(CVE_USO_CFDI, ' ', DES_CFDI) AS desCfdi\r\n"
 				+ "FROM\r\n"
 				+ "SVC_CFDI\r\n"
 				+ "WHERE\r\n");
