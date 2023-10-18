@@ -20,7 +20,7 @@ public class FacturacionUtil {
 			+ "FAC.FEC_FACTURACION AS fechaFactura,\r\n"
 			+ "FAC.CVE_FOLIO_FISCAL AS folioFiscal,\r\n"
 			+ "FAC.CVE_RFC_CONTRATANTE AS rfc,\r\n"
-			+ "FAC.DES_RAZON_SOCIAL AS razonSocial,\r\n"
+			+ "FAC.REF_RAZON_SOCIAL AS razonSocial,\r\n"
 			+ "ESFAC.DES_ESTATUS AS estatusFactura\r\n"
 			+ "FROM SVC_FACTURA FAC\r\n"
 			+ "INNER JOIN SVC_ESTATUS_FACTURA ESFAC ON ESFAC.ID_ESTATUS_FACTURA = FAC.ID_ESTATUS_FACTURA\r\n"
@@ -268,10 +268,10 @@ public class FacturacionUtil {
 		q.agregarParametroValues("IMP_TOTAL_PAGADO", "'" + datos.getTotalPagado() + "'");
 		q.agregarParametroValues("IMP_TOTAL_SERV", "'" + datos.getTotalServicios() + "'");
 		q.agregarParametroValues("CVE_RFC_CONTRATANTE", "'" + datos.getRfc() + "'");
-		q.agregarParametroValues("DES_CORREOE", "'" + datos.getCorreo() + "'");
-		q.agregarParametroValues("DES_RAZON_SOCIAL", "'" + datos.getRazonSocial() + "'");
+		q.agregarParametroValues("REF_CORREOE", "'" + datos.getCorreo() + "'");
+		q.agregarParametroValues("REF_RAZON_SOCIAL", "'" + datos.getRazonSocial() + "'");
 		q.agregarParametroValues("TIPO_PERSONA", "'" + datos.getTipoPersona() + "'");
-		q.agregarParametroValues("DES_REGIMEN_FISCAL", "'" + datos.getRegimenFiscal() + "'");
+		q.agregarParametroValues("REF_REGIMEN_FISCAL", "'" + datos.getRegimenFiscal() + "'");
 		
 		StringBuilder dom = new StringBuilder("");
 		dom.append( "C.P. " + datos.getDomicilioFiscal().getCp() + ", " );
@@ -281,12 +281,12 @@ public class FacturacionUtil {
 		dom.append( datos.getDomicilioFiscal().getDmunicipio() + ", " );
 		dom.append( datos.getDomicilioFiscal().getDentFed() + "." );
 		
-		q.agregarParametroValues("DES_DOMICILIO", "'" + dom.toString() + "'");
-		q.agregarParametroValues("ID_USO_CFDI", "'" + datos.getCfdi().getIdCfdi() + "'");
+		q.agregarParametroValues("REF_DOMICILIO", "'" + dom.toString() + "'");
+		q.agregarParametroValues("IND_USO_CFDI", "'" + datos.getCfdi().getIdCfdi() + "'");
 		q.agregarParametroValues("ID_MET_PAGO_FAC", "'" + datos.getMetPagoFac().getIdMetPagoFac() + "'");
 		q.agregarParametroValues("ID_FOR_PAGO_FAC", "'" + datos.getForPago().getIdForPago() + "'");
-		q.agregarParametroValues("DES_OBSERVACIONES", "'" + datos.getObsAutomatica() + "'");
-		q.agregarParametroValues("DES_COMENTARIOS", "'" + datos.getObsManual() + "'");
+		q.agregarParametroValues("REF_OBSERVACIONES", "'" + datos.getObsAutomatica() + "'");
+		q.agregarParametroValues("REF_COMENTARIOS", "'" + datos.getObsManual() + "'");
 		q.agregarParametroValues("ID_ESTATUS_FACTURA", "'1'");
 		q.agregarParametroValues("ID_FLUJO_PAGOS", "'" + datos.getTipoFactura() + "'");
 		q.agregarParametroValues("ID_VELATORIO", "'" + datos.getIdVelatorio() + "'");
@@ -446,7 +446,7 @@ public class FacturacionUtil {
 		String decode="";
 		QueryHelper q = new QueryHelper("UPDATE SVC_FACTURA");
 		q.agregarParametroValues("FEC_FACTURACION", "'" +resPar.getFecha_hora_factura() + "'");
-		q.agregarParametroValues("DES_LUGAR_EXPEDICION", "'" + resPar.getLuger_emision() + "'");
+		q.agregarParametroValues("REF_LUGAR_EXPEDICION", "'" + resPar.getLuger_emision() + "'");
 		q.agregarParametroValues("CVE_FOLIO_FISCAL", "'" + resPar.getFolio_fiscal() + "'");
 		try {
 			decode = new String(DatatypeConverter.parseBase64Binary(resPar.getXml_timbrado()), "UTF-8");
@@ -531,17 +531,20 @@ public class FacturacionUtil {
 		Map<String, Object> envioDatos = new HashMap<>();
 		StringBuilder condicion = new StringBuilder(" ");
 		
-		condicion.append( " AND FAC.ID_VELATORIO = '" + filtros.getIdVelatorio() + "' " );
-		condicion.append( " AND FAC.FEC_FACTURACION BETWEEN '" + filtros.getFechaInicio() + "' AND '" + filtros.getFechaFin() + "' " );
+		if( filtros.getIdVelatorio() != null ) {
+			condicion.append( " AND FAC.ID_VELATORIO = '" + filtros.getIdVelatorio() + "' " );
+		}
+		
+		if( filtros.getIdDelegacion() != null ) {
+			condicion.append( " AND VEL.ID_DELEGACION = '" + filtros.getIdDelegacion() + "' " );
+		}
+		
 		
 		if( filtros.getFechaInicio() == null) {
-			
 			envioDatos.put("periodo", " " );
-			
 		}else {
-			
 			envioDatos.put("periodo", filtros.getFechaInicio() + " - " + filtros.getFechaFin());
-		
+			condicion.append( " AND FAC.FEC_FACTURACION BETWEEN '" + filtros.getFechaInicio() + "' AND '" + filtros.getFechaFin() + "' " );
 		}
 		
 		envioDatos.put("filtros", condicion);

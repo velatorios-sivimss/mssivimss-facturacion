@@ -17,6 +17,7 @@ import lombok.Setter;
 public class FiltroRequest {
 
 	private String idVelatorio;
+	private String idDelegacion;
 	private String idFlujoPagos;
 	private String folio;
 	private String folioFactura;

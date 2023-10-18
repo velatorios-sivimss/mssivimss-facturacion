@@ -672,17 +672,20 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		total = (Double) listadatos.get(0).get("total");
 		
-		
-		query = facturacionUtil.nomVelatorio(filtrosRequest.getIdVelatorio());
-		
-		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
-		
-		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
-				authentication);
-		
-		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
-		
-		velatorio = (String) listadatos.get(0).get("nombre");
+		if( filtrosRequest.getIdVelatorio() == null ) {
+			
+			velatorio = "Todos";
+			
+		}else {
+			
+			query = facturacionUtil.nomVelatorio(filtrosRequest.getIdVelatorio());
+			request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+			response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+					authentication);
+			listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+			velatorio = (String) listadatos.get(0).get("nombre");
+			
+		}
 		
 		Map<String, Object> envioDatos = facturacionUtil.reporteCU079(filtrosRequest, NOM_REPORTE);
 		envioDatos.put("total", total.toString() );
