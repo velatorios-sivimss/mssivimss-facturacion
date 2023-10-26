@@ -168,9 +168,9 @@ public class FacturacionUtil {
 		query.append( "\r\n" );
 		query.append( "AND PD.CVE_ESTATUS = '4' ), 0) \r\n"
 				+ "AS totalPagado,\r\n"
-				+ "PB.DESC_VALOR AS totalServicios,\r\n"
+				+ "PB.IMP_VALOR AS totalServicios,\r\n"
 				+ "PER.CVE_RFC AS rfc,\r\n"
-				+ "PER.DES_CORREO AS correo,\r\n"
+				+ "PER.REF_CORREO AS correo,\r\n"
 				+ "PB.ID_VELATORIO AS idVelatorio\r\n"
 				+ "FROM SVT_PAGO_BITACORA PB\r\n"
 				+ "INNER JOIN SVC_FLUJO_PAGOS FP ON FP.ID_FLUJO_PAGOS = PB.ID_FLUJO_PAGOS\r\n"
@@ -203,9 +203,9 @@ public class FacturacionUtil {
 		query.append( "\r\n" );
 		query.append( "AND PD.CVE_ESTATUS = '4' ), 0) \r\n"
 				+ "AS totalPagado,\r\n"
-				+ "PB.DESC_VALOR AS totalServicios,\r\n"
+				+ "PB.IMP_VALOR AS totalServicios,\r\n"
 				+ "PER.CVE_RFC AS rfc,\r\n"
-				+ "PER.DES_CORREO AS correo,\r\n"
+				+ "PER.REF_CORREO AS correo,\r\n"
 				+ "PB.ID_VELATORIO AS idVelatorio\r\n"
 				+ "FROM SVT_PAGO_BITACORA PB\r\n"
 				+ "INNER JOIN SVC_FLUJO_PAGOS FP ON FP.ID_FLUJO_PAGOS = PB.ID_FLUJO_PAGOS\r\n"
@@ -226,7 +226,7 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "MP.DESC_METODO_PAGO AS metodoPago,\r\n"
+				+ "MP.DES_METODO_PAGO AS metodoPago,\r\n"
 				+ "PD.IMP_PAGO AS importe\r\n"
 				+ "FROM\r\n"
 				+ "SVT_PAGO_DETALLE PD\r\n"
@@ -243,7 +243,7 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "MP.DESC_METODO_PAGO AS metodoPago,\r\n"
+				+ "MP.DES_METODO_PAGO AS metodoPago,\r\n"
 				+ "BP.DES_IMPORTE AS importe\r\n"
 				+ "FROM\r\n"
 				+ "SVC_BITACORA_PAGO_ANTICIPADO BP\r\n"
@@ -337,9 +337,9 @@ public class FacturacionUtil {
 		query.append( "\r\n" );
 		query.append( "AND PD.CVE_ESTATUS = '4' ), 0) \r\n"
 				+ "AS totalPagado,\r\n"
-				+ "PB.DESC_VALOR AS totalServicios,\r\n"
+				+ "PB.IMP_VALOR AS totalServicios,\r\n"
 				+ "PER.CVE_RFC AS rfc,\r\n"
-				+ "PER.DES_CORREO AS correo,\r\n"
+				+ "PER.REF_CORREO AS correo,\r\n"
 				+ "PB.ID_VELATORIO AS idVelatorio\r\n"
 				+ "FROM SVT_PAGO_BITACORA PB\r\n"
 				+ "INNER JOIN SVC_FLUJO_PAGOS FP ON FP.ID_FLUJO_PAGOS = PB.ID_FLUJO_PAGOS\r\n"
@@ -407,7 +407,7 @@ public class FacturacionUtil {
 				+ "AS totalPagado,\r\n"
 				+ "PA.MON_PRECIO AS totalServicios,\r\n"
 				+ "PER.CVE_RFC AS rfc,\r\n"
-				+ "PER.DES_CORREO AS correo,\r\n"
+				+ "PER.REF_CORREO AS correo,\r\n"
 				+ "PA.ID_VELATORIO AS idVelatorio\r\n"
 				+ "FROM SVT_PLAN_SFPA PA\r\n"
 				+ "INNER JOIN SVC_CONTRATANTE CON ON CON.ID_CONTRATANTE = PA.ID_TITULAR\r\n"
