@@ -270,7 +270,7 @@ public class FacturacionUtil {
 		q.agregarParametroValues("CVE_RFC_CONTRATANTE", "'" + datos.getRfc() + "'");
 		q.agregarParametroValues("REF_CORREOE", "'" + datos.getCorreo() + "'");
 		q.agregarParametroValues("REF_RAZON_SOCIAL", "'" + datos.getRazonSocial() + "'");
-		q.agregarParametroValues("TIPO_PERSONA", "'" + datos.getTipoPersona() + "'");
+		q.agregarParametroValues("TIP_PERSONA", "'" + datos.getTipoPersona() + "'");
 		q.agregarParametroValues("REF_REGIMEN_FISCAL", "'" + datos.getRegimenFiscal() + "'");
 		
 		StringBuilder dom = new StringBuilder("");
@@ -596,13 +596,13 @@ public class FacturacionUtil {
 		
 		StringBuilder query = new StringBuilder("SELECT\r\n"
 				+ "CONCAT('\"', VEL.DES_VELATORIO,'\"')  AS nomVelatorio,\r\n"
-				+ "CONCAT('\"', DOM.DES_CP, '\"') AS cp,\r\n"
-				+ "CONCAT('\"', DOM.DES_CALLE, '\"') AS calle,\r\n"
+				+ "CONCAT('\"', DOM.REF_CP, '\"') AS cp,\r\n"
+				+ "CONCAT('\"', DOM.REF_CALLE, '\"') AS calle,\r\n"
 				+ "CONCAT('\"', DOM.NUM_EXTERIOR, '\"') AS numExterior,\r\n"
 				+ "CONCAT('\"', DOM.NUM_INTERIOR, '\"') AS numInterior,\r\n"
-				+ "CONCAT('\"', DOM.DES_COLONIA, '\"') AS colonia,\r\n"
-				+ "CONCAT('\"', DOM.DES_MUNICIPIO, '\"') AS municipio,\r\n"
-				+ "CONCAT('\"', DOM.DES_ESTADO, '\"') AS estado\r\n"
+				+ "CONCAT('\"', DOM.REF_COLONIA, '\"') AS colonia,\r\n"
+				+ "CONCAT('\"', DOM.REF_MUNICIPIO, '\"') AS municipio,\r\n"
+				+ "CONCAT('\"', DOM.REF_ESTADO, '\"') AS estado\r\n"
 				+ "FROM\r\n"
 				+ "SVC_VELATORIO VEL\r\n"
 				+ "LEFT JOIN SVT_DOMICILIO DOM ON DOM.ID_DOMICILIO = VEL.ID_DOMICILIO\r\n"
