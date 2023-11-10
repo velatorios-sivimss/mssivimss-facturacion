@@ -543,7 +543,7 @@ public class FacturacionUtil {
 		if( filtros.getFechaInicio() == null) {
 			envioDatos.put("periodo", " " );
 		}else {
-			envioDatos.put("periodo", filtros.getFechaInicio() + " - " + filtros.getFechaFin());
+			envioDatos.put("periodo", "Periodo: " + filtros.getFechaInicio() + " - " + filtros.getFechaFin());
 			condicion.append( " AND FAC.FEC_FACTURACION BETWEEN '" + filtros.getFechaInicio() + "' AND '" + filtros.getFechaFin() + "' " );
 		}
 		
