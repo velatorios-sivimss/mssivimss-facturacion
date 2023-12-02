@@ -480,12 +480,13 @@ public class FacturacionUtil {
 				+ "PAQ.REF_PAQUETE_NOMBRE AS grupo,\r\n"
 				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
-				+ "'' AS claveSAT,\r\n"
+				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.DES_UNIDAD_SAT) AS claveSAT,\r\n"
 				+ "PAQ.MON_PRECIO AS importe,\r\n"
 				+ "PAQ.MON_PRECIO AS total\r\n"
 				+ "FROM\r\n"
 				+ "SVC_CARAC_PRESUPUESTO CP\r\n"
 				+ "INNER JOIN SVT_PAQUETE PAQ ON PAQ.ID_PAQUETE = CP.ID_PAQUETE\r\n"
+				+ "INNER JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS CS ON CS.ID_PRODUCTOS_SERVICIOS = PAQ.ID_PRODUCTOS_SERVICIOS\r\n"
 				+ "WHERE\r\n"
 				+ "CP.ID_ORDEN_SERVICIO = " );
 		query.append( idRegistro );
