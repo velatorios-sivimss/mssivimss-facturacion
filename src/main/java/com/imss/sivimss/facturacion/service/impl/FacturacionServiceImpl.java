@@ -376,9 +376,19 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 			// TODO Auto-generated method stub
 			// Validar que es clave unidad
+			String claveSat;
+			
+			if( ser.getClaveSAT()!=null && !ser.getClaveSAT().isEmpty()) {
+				String[] claves = ser.getClaveSAT().split(" ");
+				claveSat = claves[1];
+			}
+			else {
+				claveSat = "H87";
+			}
+			
 			document = new DocumentFields();
 			document.setFieldName("clave_unidad");
-			document.setFieldValue( "H87" );
+			document.setFieldValue( claveSat );
 			ep.getFields().add(document);
 			
 			document = new DocumentFields();
@@ -400,7 +410,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		document = new DocumentFields();
 		document.setFieldName("observaciones");
-		document.setFieldValue( crearFacRequest.getObsAutomatica() );
+		document.setFieldValue( crearFacRequest.getObsManual() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
