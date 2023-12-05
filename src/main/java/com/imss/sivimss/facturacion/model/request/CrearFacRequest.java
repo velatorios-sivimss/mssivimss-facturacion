@@ -3,6 +3,8 @@ package com.imss.sivimss.facturacion.model.request;
 import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.imss.sivimss.facturacion.model.response.FinadoResponse;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -36,4 +38,5 @@ public class CrearFacRequest {
 	private String obsManual;
 	private String fecPago;
 	private String concPago;
+	private FinadoResponse finado;
 }

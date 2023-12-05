@@ -83,6 +83,9 @@ public class FacturacionServiceImpl implements FacturacionService {
 	@Value("${endpoints.ms-reportes}")
 	private String urlReportes;
 	
+	@Value("${formato_fecha}")
+	private String formatoFecha;
+	
 	@Autowired
 	private LogUtil logUtil;
 	
@@ -347,10 +350,9 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		for( ServiciosRequest ser : crearFacRequest.getServicios() ) {
 			
-			// TODO Auto-generated method stub
 			document = new DocumentFields();
 			document.setFieldName("claveprodserv");
-			document.setFieldValue( "48131502" );
+			document.setFieldValue( ser.getClaveProd() );
 			ep.getFields().add(document);
 			
 			document = new DocumentFields();
@@ -373,9 +375,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 			document.setFieldName("objeto_impuesto");
 			document.setFieldValue( "02" );
 			ep.getFields().add(document);
-		
-			// TODO Auto-generated method stub
-			// Validar que es clave unidad
+
 			String claveSat;
 			
 			if( ser.getClaveSAT()!=null && !ser.getClaveSAT().isEmpty()) {
@@ -494,16 +494,15 @@ public class FacturacionServiceImpl implements FacturacionService {
 		document.setFieldValue( crearFacRequest.getDomicilioFiscal().getPaisResidencia() );
 		ep.getFields().add(document);
 		
-		// TODO Auto-generated method stub
 		// Falta ir por los datos del Finado
 		document = new DocumentFields();
 		document.setFieldName("nombre_finado");
-		document.setFieldValue( "LUCILA GUADALUPE VARGAS HERNANDEZ" );
+		document.setFieldValue( crearFacRequest.getFinado().getNomFinado() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("fecha_defuncion");
-		document.setFieldValue( "21/08/2023" );
+		document.setFieldValue( crearFacRequest.getFinado().getFecFinado() );
 		ep.getFields().add(document);
 		
 		Services_Service service = new Services_Service();
