@@ -307,6 +307,7 @@ public class FacturacionUtil {
 				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
+				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
 				+ "PAQ.MON_PRECIO AS importe,\r\n"
 				+ "PAQ.MON_PRECIO AS total\r\n"
 				+ "FROM\r\n"
@@ -366,6 +367,7 @@ public class FacturacionUtil {
 				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
+				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
 				+ "PAQ.MON_PRECIO AS importe,\r\n"
 				+ "PAQ.MON_PRECIO AS total\r\n"
 				+ "FROM\r\n"
@@ -431,6 +433,7 @@ public class FacturacionUtil {
 				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
+				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
 				+ "PAQ.MON_PRECIO AS importe,\r\n"
 				+ "PAQ.MON_PRECIO AS total\r\n"
 				+ "FROM\r\n"
@@ -484,6 +487,7 @@ public class FacturacionUtil {
 				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
+				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
 				+ "PAQ.MON_PRECIO AS importe,\r\n"
 				+ "PAQ.MON_PRECIO AS total\r\n"
 				+ "FROM\r\n"
@@ -611,10 +615,92 @@ public class FacturacionUtil {
 				+ "SVC_VELATORIO VEL\r\n"
 				+ "LEFT JOIN SVT_DOMICILIO DOM ON DOM.ID_DOMICILIO = VEL.ID_DOMICILIO\r\n"
 				+ "WHERE\r\n"
-				+ "ID_VELATORIO =");
+				+ "ID_VELATORIO = ");
 		
 		query.append( idVelatorio );
 		
 		return query.toString();
+	}
+	
+	public String finadoOds(String idOds, String formatoFecha) {
+		
+		StringBuilder query = new StringBuilder("SELECT\r\n"
+				+ "FIN.ID_FINADO AS idFinado,\r\n"
+				+ "CONCAT('\"',DATE_FORMAT(FIN.FEC_DECESO, '");
+		query.append(formatoFecha);
+		query.append("'), '\"') AS fecFinado,\r\n"
+				+ "CONCAT('\"', PER.NOM_PERSONA, ' ', PER.NOM_PRIMER_APELLIDO, ' ', "
+				+ "PER.NOM_SEGUNDO_APELLIDO, '\"') AS nomFinado\r\n"
+				+ "FROM SVC_FINADO FIN\r\n"
+				+ "INNER JOIN SVC_PERSONA PER ON PER.ID_PERSONA = FIN.ID_PERSONA\r\n"
+				+ "INNER JOIN SVC_ORDEN_SERVICIO ODS ON ODS.ID_ORDEN_SERVICIO = FIN.ID_ORDEN_SERVICIO\r\n"
+				+ "WHERE\r\n"
+				+ "ODS.ID_ORDEN_SERVICIO = ");
+		query.append( idOds );
+		query.append(" LIMIT 1");
+		
+		return query.toString();
+		
+	}
+	
+	public String finadoCon(String idCon, String formatoFecha) {
+		
+		StringBuilder query = new StringBuilder("SELECT\r\n"
+				+ "FIN.ID_FINADO AS idFinado,\r\n"
+				+ "CONCAT('\"',DATE_FORMAT(FIN.FEC_DECESO, '");
+		query.append(formatoFecha);
+		query.append("'), '\"') AS fecFinado,\r\n"
+				+ "CONCAT('\"', PER.NOM_PERSONA, ' ', PER.NOM_PRIMER_APELLIDO, ' ', PER.NOM_SEGUNDO_APELLIDO, '\"') AS nomFinado\r\n"
+				+ "FROM SVC_FINADO FIN\r\n"
+				+ "INNER JOIN SVC_PERSONA PER ON PER.ID_PERSONA = FIN.ID_PERSONA\r\n"
+				+ "INNER JOIN SVT_CONVENIO_PF CON ON CON.ID_CONVENIO_PF = FIN.ID_CONTRATO_PREVISION\r\n"
+				+ "WHERE\r\n"
+				+ "CON.ID_CONVENIO_PF = ");
+		query.append( idCon );
+		query.append(" LIMIT 1");
+		
+		return query.toString();
+		
+	}
+	
+	public String finadoRenCon(String idRenCon, String formatoFecha) {
+		
+		StringBuilder query = new StringBuilder("SELECT\r\n"
+				+ "FIN.ID_FINADO AS idFinado,\r\n"
+				+ "CONCAT('\"',DATE_FORMAT(FIN.FEC_DECESO, '");
+		query.append(formatoFecha);
+		query.append("'), '\"') AS fecFinado,\r\n"
+				+ "CONCAT('\"', PER.NOM_PERSONA, ' ', PER.NOM_PRIMER_APELLIDO, ' ', PER.NOM_SEGUNDO_APELLIDO, '\"') AS nomFinado\r\n"
+				+ "FROM SVC_FINADO FIN\r\n"
+				+ "INNER JOIN SVC_PERSONA PER ON PER.ID_PERSONA = FIN.ID_PERSONA\r\n"
+				+ "INNER JOIN SVT_CONVENIO_PF CON ON CON.ID_CONVENIO_PF = FIN.ID_CONTRATO_PREVISION\r\n"
+				+ "INNER JOIN SVT_RENOVACION_CONVENIO_PF REN ON REN.ID_CONVENIO_PF = CON.ID_CONVENIO_PF\r\n"
+				+ "WHERE\r\n"
+				+ "REN.ID_RENOVACION_CONVENIO_PF = ");
+		query.append( idRenCon );
+		query.append(" LIMIT 1");
+		
+		return query.toString();
+		
+	}
+	
+	public String finadoPA(String idPA, String formatoFecha) {
+		
+		StringBuilder query = new StringBuilder("SELECT\r\n"
+				+ "FIN.ID_FINADO AS idFinado,\r\n"
+				+ "CONCAT('\"',DATE_FORMAT(FIN.FEC_DECESO, '");
+		query.append(formatoFecha);
+		query.append("'), '\"') AS fecFinado,\r\n"
+				+ "CONCAT('\"', PER.NOM_PERSONA, ' ', PER.NOM_PRIMER_APELLIDO, ' ', PER.NOM_SEGUNDO_APELLIDO, '\"') AS nomFinado\r\n"
+				+ "FROM SVC_FINADO FIN\r\n"
+				+ "INNER JOIN SVC_PERSONA PER ON PER.ID_PERSONA = FIN.ID_PERSONA\r\n"
+				+ "INNER JOIN SVT_PLAN_SFPA PA ON PA.ID_PLAN_SFPA = FIN.ID_CONTRATO_PREVISION_PA\r\n"
+				+ "WHERE\r\n"
+				+ "PA.ID_PLAN_SFPA = ");
+		query.append( idPA );
+		query.append(" LIMIT 1");
+		
+		return query.toString();
+		
 	}
 }
