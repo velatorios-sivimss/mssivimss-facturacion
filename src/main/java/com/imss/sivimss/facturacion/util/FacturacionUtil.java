@@ -244,7 +244,7 @@ public class FacturacionUtil {
 		
 		query.append( "SELECT\r\n"
 				+ "MP.DES_METODO_PAGO AS metodoPago,\r\n"
-				+ "BP.DES_IMPORTE AS importe\r\n"
+				+ "BP.IMP_PAGO AS importe\r\n"
 				+ "FROM\r\n"
 				+ "SVC_BITACORA_PAGO_ANTICIPADO BP\r\n"
 				+ "INNER JOIN SVC_METODO_PAGO MP ON MP.ID_METODO_PAGO = BP.ID_METODO_PAGO\r\n"
@@ -389,6 +389,7 @@ public class FacturacionUtil {
 		query.append( "SELECT\r\n"
 				+ "CONCAT('\"', PER.NOM_PERSONA, ' ', PER.NOM_PRIMER_APELLIDO, ' ',PER.NOM_SEGUNDO_APELLIDO, '\"') AS nomContratante,\r\n"
 				+ "PA.FEC_INGRESO AS fecOds,\r\n"
+				+ "CONCAT('\"',\r\n"
 				+ "(\r\n"
 				+ "SELECT\r\n"
 				+ "FEC_ALTA\r\n"
@@ -399,17 +400,17 @@ public class FacturacionUtil {
 		query.append( idPagoBitacora );
 		query.append( "\r\n" );
 		query.append( "ORDER BY FEC_ALTA DESC\r\n"
-				+ "LIMIT 1) AS fecPago,\r\n"
+				+ "LIMIT 1), '\"') AS fecPago,\r\n"
 				+ "CONCAT('\"', 'Nuevos convenios del Plan de Servicios Funerarios Pagos Anticipados.','\"')AS concPago,\r\n"
 				+ "IFNULL(\r\n"
-				+ "(SELECT SUM(DES_IMPORTE)\r\n"
+				+ "(SELECT SUM(IMP_PAGO)\r\n"
 				+ "FROM SVC_BITACORA_PAGO_ANTICIPADO\r\n"
 				+ "WHERE\r\n"
 				+ "ID_PLAN_SFPA = " );
 		query.append( idPagoBitacora );
 		query.append("), 0)\r\n"
 				+ "AS totalPagado,\r\n"
-				+ "PA.MON_PRECIO AS totalServicios,\r\n"
+				+ "PA.IMP_PRECIO AS totalServicios,\r\n"
 				+ "PER.CVE_RFC AS rfc,\r\n"
 				+ "PER.REF_CORREO AS correo,\r\n"
 				+ "PA.ID_VELATORIO AS idVelatorio\r\n"
