@@ -497,12 +497,28 @@ public class FacturacionServiceImpl implements FacturacionService {
 		// Falta ir por los datos del Finado
 		document = new DocumentFields();
 		document.setFieldName("nombre_finado");
-		document.setFieldValue( crearFacRequest.getFinado().getNomFinado() );
+		String nomFinado;
+		if( (crearFacRequest.getFinado()==null) 
+				|| (crearFacRequest.getFinado().getNomFinado() == null) 
+				|| (crearFacRequest.getFinado().getNomFinado().isEmpty()) ) {
+			nomFinado = crearFacRequest.getNomContratante();
+		}else {
+			nomFinado = crearFacRequest.getFinado().getNomFinado();
+		}
+		document.setFieldValue( nomFinado );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("fecha_defuncion");
-		document.setFieldValue( crearFacRequest.getFinado().getFecFinado() );
+		String fecDefuncion;
+		if( (crearFacRequest.getFinado()==null) 
+				|| (crearFacRequest.getFinado().getFecFinado() == null) 
+				|| (crearFacRequest.getFinado().getFecFinado().isEmpty()) ) {
+			fecDefuncion = crearFacRequest.getFecPago();
+		}else {
+			fecDefuncion = crearFacRequest.getFinado().getFecFinado();
+		}
+		document.setFieldValue( fecDefuncion );
 		ep.getFields().add(document);
 		
 		Services_Service service = new Services_Service();
