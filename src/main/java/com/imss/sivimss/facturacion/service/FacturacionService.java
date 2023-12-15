@@ -14,5 +14,6 @@ public interface FacturacionService {
 	Response<Object>generarFacturaPdf(DatosRequest request, Authentication authentication) throws IOException;
 	Response<Object> cancelar(DatosRequest request, Authentication authentication) throws IOException;
 	Response<Object> generarRF(DatosRequest request, Authentication authentication) throws IOException;
+	Response<Object> reenviarFac(DatosRequest request, Authentication authentication) throws IOException;
 	
 }

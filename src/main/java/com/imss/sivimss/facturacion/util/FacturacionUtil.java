@@ -517,6 +517,25 @@ public class FacturacionUtil {
 		return query.toString();
 	}
 	
+	public String buscarArchivos(String idFactura) {
+		StringBuilder query = new StringBuilder("");
+		
+		query.append( "SELECT\r\n"
+				+ "REF_CADENA_PDF AS arcPdf,\r\n"
+				+ "REF_CADENA_XML AS arcXml,\r\n"
+				+ "CVE_FOLIO_FISCAL AS folioFiscal,\r\n"
+				+ "REF_RAZON_SOCIAL AS razonSocial,\r\n"
+				+ "REF_CORREOE AS correo\r\n"
+				+ "FROM SVC_FACTURA\r\n"
+				+ "WHERE\r\n"
+				+ "ID_FACTURA = "
+				+ idFactura
+				+ "\r\n"
+				+ "LIMIT 1" );
+		
+		return query.toString();
+	}
+	
 	public String cancelar(CancelarFacRequest cancelarFacRequest, Integer idUsuario) {
 		
 		QueryHelper q = new QueryHelper("UPDATE SVC_FACTURA");

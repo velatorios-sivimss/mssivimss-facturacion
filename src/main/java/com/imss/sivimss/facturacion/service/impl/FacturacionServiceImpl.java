@@ -2,8 +2,10 @@ package com.imss.sivimss.facturacion.service.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -19,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +29,12 @@ import com.google.gson.Gson;
 import com.imss.sivimss.facturacion.service.FacturacionService;
 import com.imss.sivimss.facturacion.util.DatosRequest;
 import com.imss.sivimss.facturacion.util.Response;
-
 import lombok.extern.log4j.Log4j2;
 
 import com.imss.sivimss.facturacion.model.request.UsuarioDto;
+import com.imss.sivimss.facturacion.model.request.Archivos;
 import com.imss.sivimss.facturacion.model.request.CancelarFacRequest;
+import com.imss.sivimss.facturacion.model.request.CorreoRequest;
 import com.imss.sivimss.facturacion.model.request.CrearFacRequest;
 import com.imss.sivimss.facturacion.model.request.FiltroRequest;
 import com.imss.sivimss.facturacion.model.request.GenerarFacturaRequest;
@@ -85,6 +89,9 @@ public class FacturacionServiceImpl implements FacturacionService {
 	
 	@Value("${formato_fecha}")
 	private String formatoFecha;
+	
+	@Value("${endpoints.envio-correo-factura}")
+	private String urlEnvioCorreo;
 	
 	@Autowired
 	private LogUtil logUtil;
@@ -729,6 +736,64 @@ public class FacturacionServiceImpl implements FacturacionService {
 
 		return response;
 		
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response<Object> reenviarFac(DatosRequest request, Authentication authentication) throws IOException {
+		Gson gson = new Gson();
+		GenerarFacturaRequest generarFacturaRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), GenerarFacturaRequest.class);
+		FacturacionUtil facturacionUtil = new FacturacionUtil();
+		String query = facturacionUtil.buscarArchivos(generarFacturaRequest.getIdFactura());
+		List<Map<String, Object>> listadatos;
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		Response<Object> response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		CorreoRequest correo = new CorreoRequest();
+		correo.setTipoCorreo( "facturaIMSS" );
+		correo.setNombre( String.valueOf(listadatos.get(0).get("razonSocial")) );
+		correo.setCorreoPara( generarFacturaRequest.getCorreo() );
+		correo.setAsunto( "Factura IMSS" );
+		correo.setCuerpoCorreo( "Se envia factura" );
+		correo.setRemitente( "gestion.derechohabientes@imss.gob.mx" );
+		
+		String nombre = String.valueOf(listadatos.get(0).get("folioFiscal"));
+		Archivos archivos = new Archivos();
+		List<Archivos> adjuntos = new ArrayList<>();
+		
+		archivos.setNombreAdjunto( nombre + ".pdf" );
+		archivos.setAdjuntoBase64( String.valueOf(listadatos.get(0).get("arcPdf")) );
+		adjuntos.add(archivos);
+		
+		
+		archivos = new Archivos();
+		archivos.setNombreAdjunto( nombre + ".xml" );
+		String xml = String.valueOf(listadatos.get(0).get("arcXml"));
+		xml = xml.trim();
+		xml = DatatypeConverter.printBase64Binary(xml.getBytes("UTF-8"));
+		
+		archivos.setAdjuntoBase64( xml );
+		adjuntos.add(archivos);
+		correo.setAdjuntos(adjuntos);
+		
+		
+		response = providerRestTemplate.consumirCorreo(correo, urlEnvioCorreo);
+		
+		if (response.getCodigo() != 200) {
+			return response;
+		}
+		
+		response =  new Response<>(false, HttpStatus.OK.value(), "Exito",
+				null );
+		
+		return response;
 	}
 	
 }
