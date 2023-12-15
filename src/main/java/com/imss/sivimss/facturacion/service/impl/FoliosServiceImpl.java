@@ -232,13 +232,15 @@ public class FoliosServiceImpl implements FoliosService {
 				authentication);
 		
 		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
-		String rfc = listadatos.get(0).get("rfc").toString();
-		if( rfc.isEmpty() ) {
-			 listadatos.get(0).put("rfc", null);
+		
+		if( listadatos.get(0).get("rfc") != null ) {
+			String rfc = listadatos.get(0).get("rfc").toString();
+			if( rfc.isEmpty() ) {
+				 listadatos.get(0).put("rfc", null);
+			}
 		}
 		
 		detalle = gson.fromJson(String.valueOf(listadatos.get(0)), InfoFolioResponse.class);
-		
 		
 		/**
 		 * Despues obtenemos todos los metodos del Pagos en SVT_PAGO_DETALLE

@@ -17,5 +17,6 @@ import lombok.Setter;
 public class GenerarFacturaRequest {
 	
 	private String idFactura;
+	private String correo;
 
 }
