@@ -641,10 +641,9 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
 		
-		Response<Object> response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + ACTUALIZAR, 
+		return providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + ACTUALIZAR, 
 				authentication);
 		
-		return response;
 	}
 
 	@SuppressWarnings("unchecked")
@@ -694,13 +693,13 @@ public class FacturacionServiceImpl implements FacturacionService {
 		if(filtrosRequest.getTipoReporte().equals("xls")) {
             envioDatos.put("IS_IGNORE_PAGINATION", true);
         }
-		
+		log.info(envioDatos.get("filtros"));
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 				this.getClass().getPackage().toString(), "",CONSULTA +" " + envioDatos, authentication);
 		
 		response = providerRestTemplate.consumirServicioReportes(envioDatos, urlReportes,authentication);
 		
-		response = MensajeResponseUtil.mensajeConsultaResponse(response, ERROR_AL_DESCARGAR_DOCUMENTO);;
+		response = MensajeResponseUtil.mensajeConsultaResponse(response, ERROR_AL_DESCARGAR_DOCUMENTO);
 
 		return response;
 		

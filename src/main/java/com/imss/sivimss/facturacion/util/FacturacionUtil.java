@@ -543,14 +543,13 @@ public class FacturacionUtil {
 		if( filtros.getFechaInicio() == null) {
 			envioDatos.put("periodo", " " );
 		}else {
-			envioDatos.put("periodo", "Periodo: " + filtros.getFechaInicio() + " - " + filtros.getFechaFin());
-			condicion.append( " AND FAC.FEC_FACTURACION BETWEEN '" + filtros.getFechaInicio() + "' AND '" + filtros.getFechaFin() + "' " );
+			envioDatos.put("periodo", "Periodo: del " + filtros.getFechaInicio() + " al " + filtros.getFechaFin());
+			condicion.append( " AND DATE_FORMAT(FAC.FEC_FACTURACION,'%Y-%m-%d') BETWEEN DATE_FORMAT('" + filtros.getFechaInicio() + "','%Y-%m-%d') AND DATE_FORMAT('" + filtros.getFechaFin() + "','%Y-%m-%d') " );
 		}
 		
 		envioDatos.put("filtros", condicion);
 		envioDatos.put("tipoReporte", filtros.getTipoReporte());
 		envioDatos.put("rutaNombreReporte", nombrePdfReportes);
-
 		return envioDatos;
 	}
 	
