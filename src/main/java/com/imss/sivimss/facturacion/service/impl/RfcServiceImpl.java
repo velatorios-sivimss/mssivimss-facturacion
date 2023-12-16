@@ -43,12 +43,22 @@ public class RfcServiceImpl implements RfcService {
 		
 		RfcResponse rfcResponse = new RfcResponse();
 		
-		rfcResponse.setRazonSocial(salida.getReturn().getIdentificacion().get(0).getNomComercial());
+		
 		
 		if( salida.getReturn().getIdentificacion().get(0).getTPersona().equals("F") ) {
+			
 			rfcResponse.setTipoPersona(AppConstantes.PERSONA_FISICA);
+			StringBuilder nombre = new StringBuilder("");
+			nombre.append( salida.getReturn().getIdentificacion().get(0).getNombre() );
+			nombre.append( " " );
+			nombre.append( salida.getReturn().getIdentificacion().get(0).getApPaterno() );
+			nombre.append( " " );
+			nombre.append( salida.getReturn().getIdentificacion().get(0).getApMaterno() );
+			rfcResponse.setRazonSocial( nombre.toString() );
+			
 		}else {
 			rfcResponse.setTipoPersona(AppConstantes.PERSONA_MORAL);
+			rfcResponse.setRazonSocial(salida.getReturn().getIdentificacion().get(0).getNomComercial());
 		}
 		
 		String cveRegimenFiscal = salida.getReturn().getRegimen().get(0).getCRegimen();

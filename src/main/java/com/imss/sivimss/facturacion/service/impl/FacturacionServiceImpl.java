@@ -2,8 +2,10 @@ package com.imss.sivimss.facturacion.service.impl;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -19,6 +21,7 @@ import org.apache.commons.io.IOUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -26,11 +29,12 @@ import com.google.gson.Gson;
 import com.imss.sivimss.facturacion.service.FacturacionService;
 import com.imss.sivimss.facturacion.util.DatosRequest;
 import com.imss.sivimss.facturacion.util.Response;
-
 import lombok.extern.log4j.Log4j2;
 
 import com.imss.sivimss.facturacion.model.request.UsuarioDto;
+import com.imss.sivimss.facturacion.model.request.Archivos;
 import com.imss.sivimss.facturacion.model.request.CancelarFacRequest;
+import com.imss.sivimss.facturacion.model.request.CorreoRequest;
 import com.imss.sivimss.facturacion.model.request.CrearFacRequest;
 import com.imss.sivimss.facturacion.model.request.FiltroRequest;
 import com.imss.sivimss.facturacion.model.request.GenerarFacturaRequest;
@@ -82,6 +86,12 @@ public class FacturacionServiceImpl implements FacturacionService {
 	
 	@Value("${endpoints.ms-reportes}")
 	private String urlReportes;
+	
+	@Value("${formato_fecha}")
+	private String formatoFecha;
+	
+	@Value("${endpoints.envio-correo-factura}")
+	private String urlEnvioCorreo;
 	
 	@Autowired
 	private LogUtil logUtil;
@@ -347,10 +357,9 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		for( ServiciosRequest ser : crearFacRequest.getServicios() ) {
 			
-			// TODO Auto-generated method stub
 			document = new DocumentFields();
 			document.setFieldName("claveprodserv");
-			document.setFieldValue( "48131502" );
+			document.setFieldValue( ser.getClaveProd() );
 			ep.getFields().add(document);
 			
 			document = new DocumentFields();
@@ -373,12 +382,20 @@ public class FacturacionServiceImpl implements FacturacionService {
 			document.setFieldName("objeto_impuesto");
 			document.setFieldValue( "02" );
 			ep.getFields().add(document);
-		
-			// TODO Auto-generated method stub
-			// Validar que es clave unidad
+
+			String claveSat;
+			
+			if( ser.getClaveSAT()!=null && !ser.getClaveSAT().isEmpty()) {
+				String[] claves = ser.getClaveSAT().split(" ");
+				claveSat = claves[1];
+			}
+			else {
+				claveSat = "H87";
+			}
+			
 			document = new DocumentFields();
 			document.setFieldName("clave_unidad");
-			document.setFieldValue( "H87" );
+			document.setFieldValue( claveSat );
 			ep.getFields().add(document);
 			
 			document = new DocumentFields();
@@ -400,7 +417,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		document = new DocumentFields();
 		document.setFieldName("observaciones");
-		document.setFieldValue( crearFacRequest.getObsAutomatica() );
+		document.setFieldValue( crearFacRequest.getObsManual() );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
@@ -484,16 +501,31 @@ public class FacturacionServiceImpl implements FacturacionService {
 		document.setFieldValue( crearFacRequest.getDomicilioFiscal().getPaisResidencia() );
 		ep.getFields().add(document);
 		
-		// TODO Auto-generated method stub
 		// Falta ir por los datos del Finado
 		document = new DocumentFields();
 		document.setFieldName("nombre_finado");
-		document.setFieldValue( "LUCILA GUADALUPE VARGAS HERNANDEZ" );
+		String nomFinado;
+		if( (crearFacRequest.getFinado()==null) 
+				|| (crearFacRequest.getFinado().getNomFinado() == null) 
+				|| (crearFacRequest.getFinado().getNomFinado().isEmpty()) ) {
+			nomFinado = crearFacRequest.getNomContratante();
+		}else {
+			nomFinado = crearFacRequest.getFinado().getNomFinado();
+		}
+		document.setFieldValue( nomFinado );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("fecha_defuncion");
-		document.setFieldValue( "21/08/2023" );
+		String fecDefuncion;
+		if( (crearFacRequest.getFinado()==null) 
+				|| (crearFacRequest.getFinado().getFecFinado() == null) 
+				|| (crearFacRequest.getFinado().getFecFinado().isEmpty()) ) {
+			fecDefuncion = crearFacRequest.getFecPago();
+		}else {
+			fecDefuncion = crearFacRequest.getFinado().getFecFinado();
+		}
+		document.setFieldValue( fecDefuncion );
 		ep.getFields().add(document);
 		
 		Services_Service service = new Services_Service();
@@ -703,6 +735,64 @@ public class FacturacionServiceImpl implements FacturacionService {
 
 		return response;
 		
+	}
+
+	@SuppressWarnings("unchecked")
+	@Override
+	public Response<Object> reenviarFac(DatosRequest request, Authentication authentication) throws IOException {
+		Gson gson = new Gson();
+		GenerarFacturaRequest generarFacturaRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), GenerarFacturaRequest.class);
+		FacturacionUtil facturacionUtil = new FacturacionUtil();
+		String query = facturacionUtil.buscarArchivos(generarFacturaRequest.getIdFactura());
+		List<Map<String, Object>> listadatos;
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		Response<Object> response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		CorreoRequest correo = new CorreoRequest();
+		correo.setTipoCorreo( "facturaIMSS" );
+		correo.setNombre( String.valueOf(listadatos.get(0).get("razonSocial")) );
+		correo.setCorreoPara( generarFacturaRequest.getCorreo() );
+		correo.setAsunto( "Factura IMSS" );
+		correo.setCuerpoCorreo( "Se envia factura" );
+		correo.setRemitente( "gestion.derechohabientes@imss.gob.mx" );
+		
+		String nombre = String.valueOf(listadatos.get(0).get("folioFiscal"));
+		Archivos archivos = new Archivos();
+		List<Archivos> adjuntos = new ArrayList<>();
+		
+		archivos.setNombreAdjunto( nombre + ".pdf" );
+		archivos.setAdjuntoBase64( String.valueOf(listadatos.get(0).get("arcPdf")) );
+		adjuntos.add(archivos);
+		
+		
+		archivos = new Archivos();
+		archivos.setNombreAdjunto( nombre + ".xml" );
+		String xml = String.valueOf(listadatos.get(0).get("arcXml"));
+		xml = xml.trim();
+		xml = DatatypeConverter.printBase64Binary(xml.getBytes("UTF-8"));
+		
+		archivos.setAdjuntoBase64( xml );
+		adjuntos.add(archivos);
+		correo.setAdjuntos(adjuntos);
+		
+		
+		response = providerRestTemplate.consumirCorreo(correo, urlEnvioCorreo);
+		
+		if (response.getCodigo() != 200) {
+			return response;
+		}
+		
+		response =  new Response<>(false, HttpStatus.OK.value(), "Exito",
+				null );
+		
+		return response;
 	}
 	
 }

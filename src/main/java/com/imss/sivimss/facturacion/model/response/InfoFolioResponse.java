@@ -25,4 +25,5 @@ public class InfoFolioResponse {
 	private String idVelatorio;
 	private List<Map<String, Object>> metodosPago;
 	private List<Map<String, Object>> servicios;
+	private FinadoResponse finado;
 }

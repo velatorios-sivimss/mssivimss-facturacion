@@ -13,6 +13,7 @@ public class ServiciosRequest {
 	
 	private String total;
 	private String claveSAT;
+	private String claveProd;
 	private String grupo;
 	private String concepto;
 	private String cantidad;

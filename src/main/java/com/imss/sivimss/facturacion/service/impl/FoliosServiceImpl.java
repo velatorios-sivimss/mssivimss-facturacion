@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import com.google.gson.Gson;
 import com.imss.sivimss.facturacion.model.request.FoliosRequest;
+import com.imss.sivimss.facturacion.model.response.FinadoResponse;
 import com.imss.sivimss.facturacion.model.response.InfoFolioResponse;
 import com.imss.sivimss.facturacion.service.FoliosService;
 import com.imss.sivimss.facturacion.util.AppConstantes;
@@ -32,6 +33,9 @@ public class FoliosServiceImpl implements FoliosService {
 
 	@Value("${endpoints.mod-catalogos}")
 	private String urlDomino;
+	
+	@Value("${formato_fecha}")
+	private String formatoFecha;
 	
 	@Autowired
 	private LogUtil logUtil;
@@ -176,6 +180,24 @@ public class FoliosServiceImpl implements FoliosService {
 		
 		detalle.setServicios(listadatos);
 		
+		query = facturacionUtil.finadoOds(foliosRequest.getIdRegistro(), formatoFecha);
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		if( (listadatos != null) && (listadatos.size() > 0) ) {
+			
+			FinadoResponse finado = gson.fromJson(String.valueOf(listadatos.get(0)), FinadoResponse.class);;
+			detalle.setFinado( finado );
+		}
+		
 		response.setDatos(detalle);
 		
 		return response;
@@ -210,13 +232,15 @@ public class FoliosServiceImpl implements FoliosService {
 				authentication);
 		
 		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
-		String rfc = listadatos.get(0).get("rfc").toString();
-		if( rfc.isEmpty() ) {
-			 listadatos.get(0).put("rfc", null);
+		
+		if( listadatos.get(0).get("rfc") != null ) {
+			String rfc = listadatos.get(0).get("rfc").toString();
+			if( rfc.isEmpty() ) {
+				 listadatos.get(0).put("rfc", null);
+			}
 		}
 		
 		detalle = gson.fromJson(String.valueOf(listadatos.get(0)), InfoFolioResponse.class);
-		
 		
 		/**
 		 * Despues obtenemos todos los metodos del Pagos en SVT_PAGO_DETALLE
@@ -253,6 +277,24 @@ public class FoliosServiceImpl implements FoliosService {
 		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
 		
 		detalle.setServicios(listadatos);
+		
+		query = facturacionUtil.finadoCon(foliosRequest.getIdRegistro(), formatoFecha);
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		if( (listadatos != null) && (listadatos.size() > 0) ) {
+			
+			FinadoResponse finado = gson.fromJson(String.valueOf(listadatos.get(0)), FinadoResponse.class);;
+			detalle.setFinado( finado );
+		}
 		
 		response.setDatos(detalle);
 		
@@ -332,6 +374,24 @@ public class FoliosServiceImpl implements FoliosService {
 		
 		detalle.setServicios(listadatos);
 		
+		query = facturacionUtil.finadoRenCon(foliosRequest.getIdRegistro(), formatoFecha);
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		if( (listadatos != null) && (listadatos.size() > 0) ) {
+			
+			FinadoResponse finado = gson.fromJson(String.valueOf(listadatos.get(0)), FinadoResponse.class);;
+			detalle.setFinado( finado );
+		}
+		
 		response.setDatos(detalle);
 		
 		return response;
@@ -409,6 +469,24 @@ public class FoliosServiceImpl implements FoliosService {
 		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
 		
 		detalle.setServicios(listadatos);
+		
+		query = facturacionUtil.finadoPA(foliosRequest.getIdRegistro(), formatoFecha);
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		if( (listadatos != null) && (listadatos.size() > 0) ) {
+			
+			FinadoResponse finado = gson.fromJson(String.valueOf(listadatos.get(0)), FinadoResponse.class);;
+			detalle.setFinado( finado );
+		}
 		
 		response.setDatos(detalle);
 		
