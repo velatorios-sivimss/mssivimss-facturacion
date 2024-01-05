@@ -498,6 +498,50 @@ public class FacturacionUtil {
 				+ "WHERE\r\n"
 				+ "CP.ID_ORDEN_SERVICIO = " );
 		query.append( idRegistro );
+		query.append( "\r\n" );
+		query.append( "AND CP.IND_ACTIVO = 1\r\n"
+				+ "UNION ALL\r\n"
+				+ "SELECT\r\n"
+				+ "ART.REF_ARTICULO AS grupo,\r\n"
+				+ "ART.REF_MODELO_ARTICULO AS concepto,\r\n"
+				+ "DP.CAN_DET_PRESUP AS cantidad,\r\n"
+				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
+				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
+				+ "DP.IMP_CARAC_PRESUP AS importe,\r\n"
+				+ "DP.IMP_CARAC_PRESUP AS total\r\n"
+				+ "FROM\r\n"
+				+ "SVC_CARAC_PRESUPUESTO CP\r\n"
+				+ "INNER JOIN SVC_DETALLE_CARAC_PRESUP DP ON DP.ID_CARAC_PRESUPUESTO = CP.ID_CARAC_PRESUPUESTO\r\n"
+				+ "INNER JOIN SVT_ARTICULO ART ON ART.ID_ARTICULO = DP.ID_ARTICULO\r\n"
+				+ "INNER JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS CS ON CS.ID_PRODUCTOS_SERVICIOS = ART.ID_PRODUCTOS_SERVICIOS\r\n"
+				+ "WHERE\r\n"
+				+ "CP.ID_ORDEN_SERVICIO = " );
+		query.append( idRegistro );
+		query.append( "\r\n" );
+		query.append( "AND CP.IND_ACTIVO = 1\r\n"
+				+ "AND DP.IND_ACTIVO = 1\r\n"
+				+ "AND DP.DES_PROVIENE = 'presupuesto'\r\n"
+				+ "UNION ALL\r\n"
+				+ "SELECT\r\n"
+				+ "SER.REF_SERVICIO AS grupo,\r\n"
+				+ "SER.DES_SERVICIO AS concepto,\r\n"
+				+ "DP.CAN_DET_PRESUP AS cantidad,\r\n"
+				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
+				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
+				+ "DP.IMP_CARAC_PRESUP AS importe,\r\n"
+				+ "DP.IMP_CARAC_PRESUP AS total\r\n"
+				+ "FROM\r\n"
+				+ "SVC_CARAC_PRESUPUESTO CP\r\n"
+				+ "INNER JOIN SVC_DETALLE_CARAC_PRESUP DP ON DP.ID_CARAC_PRESUPUESTO = CP.ID_CARAC_PRESUPUESTO\r\n"
+				+ "INNER JOIN SVT_SERVICIO SER ON SER.ID_SERVICIO = DP.ID_SERVICIO\r\n"
+				+ "INNER JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS CS ON CS.ID_PRODUCTOS_SERVICIOS = SER.ID_PRODUCTOS_SERVICIOS\r\n"
+				+ "WHERE\r\n"
+				+ "CP.ID_ORDEN_SERVICIO = " );
+		query.append( idRegistro );
+		query.append( "\r\n" );
+		query.append( "AND CP.IND_ACTIVO = 1\r\n"
+				+ "AND DP.IND_ACTIVO = 1\r\n"
+				+ "AND DP.DES_PROVIENE = 'presupuesto'" );
 		
 		return query.toString();
 	}
