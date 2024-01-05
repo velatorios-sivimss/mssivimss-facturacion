@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -372,26 +371,33 @@ public class FacturacionServiceImpl implements FacturacionService {
 			document.setFieldValue( ser.getImporte() );
 			ep.getFields().add(document);
 			
+			String claveSat;
+			String unidad;
+			
+			if( ser.getClaveSAT()!=null && !ser.getClaveSAT().isEmpty()) {
+				
+				String[] claves = ser.getClaveSAT().split(" ");
+				claveSat = claves[1];
+				unidad = claves[ claves.length -1 ];
+				
+			}
+			else {
+				
+				claveSat = "H87";
+				unidad = "PIEZA";
+				
+			}
+			
 			// Validar que es unidad
 			document = new DocumentFields();
 			document.setFieldName("unidad");
-			document.setFieldValue( "PIEZA" );
+			document.setFieldValue( unidad );
 			ep.getFields().add(document);
 			
 			document = new DocumentFields();
 			document.setFieldName("objeto_impuesto");
 			document.setFieldValue( "02" );
 			ep.getFields().add(document);
-
-			String claveSat;
-			
-			if( ser.getClaveSAT()!=null && !ser.getClaveSAT().isEmpty()) {
-				String[] claves = ser.getClaveSAT().split(" ");
-				claveSat = claves[1];
-			}
-			else {
-				claveSat = "H87";
-			}
 			
 			document = new DocumentFields();
 			document.setFieldName("clave_unidad");
