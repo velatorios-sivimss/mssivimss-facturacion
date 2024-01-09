@@ -50,6 +50,7 @@ import mx.gob.imss.cit.clienteswebservices.externo.jonima.ExecuteProcedureRespon
 import mx.gob.imss.cit.clienteswebservices.externo.jonima.Services;
 import mx.gob.imss.cit.clienteswebservices.externo.jonima.Services_Service;
 
+import com.imss.sivimss.facturacion.model.response.FacturaBDResponse;
 import com.imss.sivimss.facturacion.model.response.FacturaResponse;
 import com.imss.sivimss.facturacion.model.response.VelatorioResponse;
 
@@ -192,7 +193,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		document = new DocumentFields();
 		document.setFieldName("rfc_emisor");
-		document.setFieldValue("rfcFibeso");
+		document.setFieldValue(rfcFibeso);
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
@@ -670,9 +671,112 @@ public class FacturacionServiceImpl implements FacturacionService {
 		Gson gson = new Gson();
 		CancelarFacRequest cancelarFacRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), CancelarFacRequest.class);
 		UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
-		
 		FacturacionUtil facturacionUtil = new FacturacionUtil();
-		String query = facturacionUtil.cancelar(cancelarFacRequest, usuarioDto.getIdUsuario());
+		FacturaBDResponse factura;
+		List<Map<String, Object>> listadatos;
+		Response<Object> response = new Response<Object>();
+		String query = facturacionUtil.datosFactura( cancelarFacRequest.getFolioFactura(), formatoFecha );
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		
+		response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
+		
+		factura = gson.fromJson(String.valueOf(listadatos.get(0)), FacturaBDResponse.class);
+		
+		//Haciendo el consumo de la Factura
+		
+		ExecuteProcedure1 ep = new ExecuteProcedure1();
+		ep.setAppName( appName );
+		ep.setOwner( owner );
+		ep.setProcedure( pCancelar );
+		
+		DocumentFields document = new DocumentFields();
+		document.setFieldName("transaccion");
+		document.setFieldValue("2");
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("total");
+		document.setFieldValue( factura.getTotal() );
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("folio_factura");
+		document.setFieldValue( cancelarFacRequest.getFolioFactura() );
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("folio_fiscal");
+		document.setFieldValue( cancelarFacRequest.getFolioFiscal() );
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("rfc_emisor");
+		document.setFieldValue(rfcFibeso);
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("cp_emisor");
+		document.setFieldValue("06700");
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("regimen_fiscal_emisor");
+		document.setFieldValue("603");
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("motivo_cancelacion");
+		document.setFieldValue(cancelarFacRequest.getMotivoCancelacion().getClave());
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("folio_relacionado");
+		String folioRelacionado = "";
+		if( cancelarFacRequest.getFolioRelacionado() != null ) {
+			folioRelacionado = cancelarFacRequest.getFolioRelacionado();
+		}
+		document.setFieldValue(folioRelacionado);
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("fecha_cancelacion");
+		document.setFieldValue(factura.getFecCan());
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("razon_social_receptor");
+		document.setFieldValue(factura.getRazonSocial());
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("rfc_receptor");
+		document.setFieldValue(factura.getRfc());
+		ep.getFields().add(document);
+		
+		document = new DocumentFields();
+		document.setFieldName("usuario_elaboracion");
+		document.setFieldValue( usuarioDto.getNombre() );
+		ep.getFields().add(document);
+		
+		Services_Service service = new Services_Service();
+		Services port = service.getServicesPort();
+		String token = port.authenticate(user, pass);
+		
+		ExecuteProcedureResponse1 facturaResponse = port.executeProcedure("apikey", token, ep);
+		
+		String respuesta = facturaResponse.getContent();
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","Respuesta Factura: " + respuesta, authentication);
+		
+		query = facturacionUtil.cancelar(cancelarFacRequest, usuarioDto.getIdUsuario());
 		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);

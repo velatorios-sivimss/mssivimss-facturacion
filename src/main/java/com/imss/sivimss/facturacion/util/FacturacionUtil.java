@@ -484,8 +484,8 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "PAQ.REF_PAQUETE_NOMBRE AS grupo,\r\n"
-				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
+				+ "'Paquete' AS grupo,\r\n"
+				+ "PAQ.REF_PAQUETE_NOMBRE AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
 				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
@@ -502,8 +502,8 @@ public class FacturacionUtil {
 		query.append( "AND CP.IND_ACTIVO = 1\r\n"
 				+ "UNION ALL\r\n"
 				+ "SELECT\r\n"
-				+ "ART.REF_ARTICULO AS grupo,\r\n"
-				+ "ART.REF_MODELO_ARTICULO AS concepto,\r\n"
+				+ "'Articulo' AS grupo,\r\n"
+				+ "ART.REF_ARTICULO AS concepto,\r\n"
 				+ "DP.CAN_DET_PRESUP AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
 				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
@@ -523,8 +523,8 @@ public class FacturacionUtil {
 				+ "AND DP.DES_PROVIENE = 'presupuesto'\r\n"
 				+ "UNION ALL\r\n"
 				+ "SELECT\r\n"
-				+ "SER.REF_SERVICIO AS grupo,\r\n"
-				+ "SER.DES_SERVICIO AS concepto,\r\n"
+				+ "'Servicio' AS grupo,\r\n"
+				+ "SER.REF_SERVICIO AS concepto,\r\n"
 				+ "DP.CAN_DET_PRESUP AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
 				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
@@ -593,7 +593,7 @@ public class FacturacionUtil {
 		q.agregarParametroValues("ID_ESTATUS_FACTURA", "2");
 		q.agregarParametroValues("FEC_CANCELACION", "NOW()");
 		q.agregarParametroValues("FEC_ACTUALIZACION", "NOW()");
-		q.agregarParametroValues("ID_USUARIO_MODIFICA", "NOW()");
+		q.agregarParametroValues("ID_USUARIO_MODIFICA", idUsuario.toString());
 		
 		q.addWhere("ID_FACTURA = " + cancelarFacRequest.getFolioFactura());
 		return q.obtenerQueryActualizar();
@@ -765,5 +765,25 @@ public class FacturacionUtil {
 		
 		return query.toString();
 		
+	}
+	
+	public String datosFactura(String idFactura, String formatoFecha) {
+		StringBuilder query = new StringBuilder("");
+		
+		query.append( "SELECT\r\n"
+				+ "IMP_TOTAL_SERV AS total,\r\n"
+				+ "CONCAT('\"', REF_RAZON_SOCIAL, '\"') AS razonSocial,\r\n"
+				+ "CVE_RFC_CONTRATANTE AS rfc,\r\n"
+				+ "CONCAT('\"',DATE_FORMAT(NOW(), '");
+		query.append(formatoFecha);
+		query.append("'), '\"') AS fecCan\r\n"
+				+ "FROM SVC_FACTURA\r\n"
+				+ "WHERE\r\n"
+				+ "ID_FACTURA = "
+				+ idFactura
+				+ "\r\n"
+				+ "LIMIT 1" );
+		
+		return query.toString();
 	}
 }
