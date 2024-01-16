@@ -130,18 +130,6 @@ public class FoliosServiceImpl implements FoliosService {
 				authentication);
 		
 		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
-		String rfc = null;
-		
-		if( listadatos.get(0).get("rfc") != null ) {
-			rfc = listadatos.get(0).get("rfc").toString().trim();
-		}
-		
-		if( rfc == null || rfc.isEmpty() ) {
-			listadatos.get(0).put("rfc", null);
-		}else {
-			listadatos.get(0).put("rfc", rfc);
-		}
-		
 		detalle = gson.fromJson(String.valueOf(listadatos.get(0)), InfoFolioResponse.class);
 		
 		/**
@@ -232,19 +220,6 @@ public class FoliosServiceImpl implements FoliosService {
 				authentication);
 		
 		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
-		
-		String rfc = null;
-		
-		if( listadatos.get(0).get("rfc") != null ) {
-			rfc = listadatos.get(0).get("rfc").toString().trim();
-		}
-		
-		if( rfc == null || rfc.isEmpty() ) {
-			listadatos.get(0).put("rfc", null);
-		}else {
-			listadatos.get(0).put("rfc", rfc);
-		}
-		
 		detalle = gson.fromJson(String.valueOf(listadatos.get(0)), InfoFolioResponse.class);
 		
 		/**
@@ -335,19 +310,6 @@ public class FoliosServiceImpl implements FoliosService {
 				authentication);
 		
 		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
-		
-		String rfc = null;
-		
-		if( listadatos.get(0).get("rfc") != null ) {
-			rfc = listadatos.get(0).get("rfc").toString().trim();
-		}
-		
-		if( rfc == null || rfc.isEmpty() ) {
-			listadatos.get(0).put("rfc", null);
-		}else {
-			listadatos.get(0).put("rfc", rfc);
-		}
-		
 		detalle = gson.fromJson(String.valueOf(listadatos.get(0)), InfoFolioResponse.class);
 		
 		
@@ -439,19 +401,6 @@ public class FoliosServiceImpl implements FoliosService {
 				authentication);
 		
 		listadatos = Arrays.asList(modelMapper.map(response.getDatos(), Map[].class));
-		
-		String rfc = null;
-		
-		if( listadatos.get(0).get("rfc") != null ) {
-			rfc = listadatos.get(0).get("rfc").toString().trim();
-		}
-		
-		if( rfc == null || rfc.isEmpty() ) {
-			listadatos.get(0).put("rfc", null);
-		}else {
-			listadatos.get(0).put("rfc", rfc);
-		}
-		
 		detalle = gson.fromJson(String.valueOf(listadatos.get(0)), InfoFolioResponse.class);
 		
 		
