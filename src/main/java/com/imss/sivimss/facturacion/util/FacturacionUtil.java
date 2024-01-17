@@ -303,8 +303,8 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "PAQ.REF_PAQUETE_NOMBRE AS grupo,\r\n"
-				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
+				+ "'Paquete' AS grupo,\r\n"
+				+ "PAQ.REF_PAQUETE_NOMBRE AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
 				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
@@ -363,8 +363,8 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "PAQ.REF_PAQUETE_NOMBRE AS grupo,\r\n"
-				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
+				+ "'Paquete' AS grupo,\r\n"
+				+ "PAQ.REF_PAQUETE_NOMBRE AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
 				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
@@ -430,8 +430,8 @@ public class FacturacionUtil {
 		StringBuilder query = new StringBuilder("");
 		
 		query.append( "SELECT\r\n"
-				+ "PAQ.REF_PAQUETE_NOMBRE AS grupo,\r\n"
-				+ "PAQ.REF_PAQUETE_DESCRIPCION AS concepto,\r\n"
+				+ "'Paquete' AS grupo,\r\n"
+				+ "PAQ.REF_PAQUETE_NOMBRE AS concepto,\r\n"
 				+ "'1' AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
 				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
