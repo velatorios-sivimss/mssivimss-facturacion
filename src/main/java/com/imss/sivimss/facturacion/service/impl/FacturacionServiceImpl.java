@@ -508,30 +508,37 @@ public class FacturacionServiceImpl implements FacturacionService {
 		document.setFieldValue( crearFacRequest.getDomicilioFiscal().getPaisResidencia() );
 		ep.getFields().add(document);
 		
-		// Falta ir por los datos del Finado
 		document = new DocumentFields();
 		document.setFieldName("nombre_finado");
-		String nomFinado;
-		if( (crearFacRequest.getFinado()==null) 
-				|| (crearFacRequest.getFinado().getNomFinado() == null) 
-				|| (crearFacRequest.getFinado().getNomFinado().isEmpty()) ) {
-			nomFinado = crearFacRequest.getNomContratante();
-		}else {
+		String nomFinado = "N/A";
+		
+		if( crearFacRequest.getTipoFactura().equals("1") 
+			&& ( crearFacRequest.getFinado() != null )
+			&& ( crearFacRequest.getFinado().getNomFinado() != null )
+			&& ( !crearFacRequest.getFinado().getNomFinado().isEmpty() )
+		) {
+			
 			nomFinado = crearFacRequest.getFinado().getNomFinado();
+			
 		}
+		
 		document.setFieldValue( nomFinado );
 		ep.getFields().add(document);
 		
 		document = new DocumentFields();
 		document.setFieldName("fecha_defuncion");
-		String fecDefuncion;
-		if( (crearFacRequest.getFinado()==null) 
-				|| (crearFacRequest.getFinado().getFecFinado() == null) 
-				|| (crearFacRequest.getFinado().getFecFinado().isEmpty()) ) {
+		String fecDefuncion = " ";
+		
+		if( crearFacRequest.getTipoFactura().equals("1")
+			&& ( crearFacRequest.getFinado() != null ) 
+			&& ( crearFacRequest.getFinado().getFecFinado() != null ) 
+			&& ( !crearFacRequest.getFinado().getFecFinado().isEmpty() ) 
+		) {
+			
 			fecDefuncion = crearFacRequest.getFecPago();
-		}else {
-			fecDefuncion = crearFacRequest.getFinado().getFecFinado();
+			
 		}
+		
 		document.setFieldValue( fecDefuncion );
 		ep.getFields().add(document);
 		
