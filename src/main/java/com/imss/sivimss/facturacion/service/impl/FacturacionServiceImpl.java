@@ -665,6 +665,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 		return MensajeResponseUtil.mensajeConsultaResponse( response, SIN_INFORMACION );
 	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public Response<Object> cancelar(DatosRequest request, Authentication authentication) throws IOException {
 		
