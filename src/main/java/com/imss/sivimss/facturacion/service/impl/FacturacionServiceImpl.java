@@ -147,6 +147,10 @@ public class FacturacionServiceImpl implements FacturacionService {
 		List<Map<String, Object>> listadatos;
 		VelatorioResponse velatorio;
 		
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","Datos Entrada " + crearFacRequest, authentication);
+		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
 		
@@ -322,6 +326,9 @@ public class FacturacionServiceImpl implements FacturacionService {
 		document.setFieldName("fecha_pago");
 		document.setFieldValue( crearFacRequest.getFecPago() );
 		ep.getFields().add(document);
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","fecha_pago " + crearFacRequest.getFecPago(), authentication);
 		
 		document = new DocumentFields();
 		document.setFieldName("forma_pago");
@@ -525,6 +532,10 @@ public class FacturacionServiceImpl implements FacturacionService {
 		document.setFieldValue( nomFinado );
 		ep.getFields().add(document);
 		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","nombre_finado " + nomFinado, authentication);
+		
+		
 		document = new DocumentFields();
 		document.setFieldName("fecha_defuncion");
 		String fecDefuncion = " ";
@@ -535,20 +546,30 @@ public class FacturacionServiceImpl implements FacturacionService {
 			&& ( !crearFacRequest.getFinado().getFecFinado().isEmpty() ) 
 		) {
 			
-			fecDefuncion = crearFacRequest.getFecPago();
+			fecDefuncion = crearFacRequest.getFinado().getFecFinado();
 			
 		}
 		
 		document.setFieldValue( fecDefuncion );
 		ep.getFields().add(document);
 		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","fecha_defuncion " + fecDefuncion, authentication);
+		
 		Services_Service service = new Services_Service();
 		Services port = service.getServicesPort();
 		String token = port.authenticate(user, pass);
 		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","Datos Factura " + ep, authentication);
+		
 		ExecuteProcedureResponse1 factura = port.executeProcedure("apikey", token, ep);
 		
 		String respuesta = factura.getContent();		
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","Respuesta Factura: " + respuesta, authentication);
+		
 		
 		respuesta = respuesta.replace("<xml>", "");
 		respuesta = respuesta.replace("</xml>", "");
@@ -776,6 +797,9 @@ public class FacturacionServiceImpl implements FacturacionService {
 		Services_Service service = new Services_Service();
 		Services port = service.getServicesPort();
 		String token = port.authenticate(user, pass);
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","Datos Factura: " + ep, authentication);
 		
 		ExecuteProcedureResponse1 facturaResponse = port.executeProcedure("apikey", token, ep);
 		
