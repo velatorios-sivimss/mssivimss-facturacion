@@ -587,7 +587,7 @@ public class FacturacionUtil {
 				+ "DP.CAN_DET_PRESUP AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
 				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
-				+ "DP.IMP_CARAC_PRESUP AS importe,\r\n"
+				+ "(DP.IMP_CARAC_PRESUP/DP.CAN_DET_PRESUP) AS importe,\r\n"
 				+ "DP.IMP_CARAC_PRESUP AS total\r\n"
 				+ "FROM\r\n"
 				+ "SVC_CARAC_PRESUPUESTO CP\r\n"
