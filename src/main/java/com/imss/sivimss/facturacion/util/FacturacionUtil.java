@@ -481,6 +481,85 @@ public class FacturacionUtil {
 	}
 	
 	public String obtServiciosODS(String idRegistro) {
+
+
+//		SELECT
+//		    'Paquete' AS grupo,
+//		    PAQ.REF_PAQUETE_NOMBRE AS concepto,
+//		    '1' AS cantidad,
+//		    CONCAT(
+//		        CS.CVE_PRODUCTOS_SERVICIOS,
+//		        ' ',
+//		        CS.REF_UNIDAD_SAT
+//		    ) AS claveSAT,
+//		    CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,
+//		    PAQ.MON_PRECIO AS importe,
+//		    PAQ.MON_PRECIO AS total
+//		FROM
+//		    SVC_CARAC_PRESUPUESTO CP
+//		INNER JOIN SVT_PAQUETE PAQ ON
+//		    PAQ.ID_PAQUETE = CP.ID_PAQUETE
+//		INNER JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS CS ON
+//		    CS.ID_PRODUCTOS_SERVICIOS = PAQ.ID_PRODUCTOS_SERVICIOS
+//		WHERE
+//		    0 <(
+//		    SELECT
+//		        COUNT(sdcp.ID_DETALLE_CARAC)
+//		    FROM
+//		        SVC_CARACTERISTICAS_PAQUETE scp
+//		    INNER JOIN SVC_DETALLE_CARAC_PAQ sdcp ON
+//		        scp.ID_CARAC_PAQUETE = sdcp.ID_CARAC_PAQUETE
+//		    WHERE
+//		        scp.ID_ORDEN_SERVICIO = 112 AND sdcp.IND_ACTIVO IS NOT NULL
+//		) AND CP.ID_ORDEN_SERVICIO = 112 AND CP.IND_ACTIVO = 1
+//		UNION ALL
+//		SELECT
+//		    'Articulo' AS grupo,
+//		    ART.REF_ARTICULO AS concepto,
+//		    DP.CAN_DET_PRESUP AS cantidad,
+//		    CONCAT(
+//		        CS.CVE_PRODUCTOS_SERVICIOS,
+//		        ' ',
+//		        CS.REF_UNIDAD_SAT
+//		    ) AS claveSAT,
+//		    CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,
+//		    DP.IMP_CARAC_PRESUP AS importe,
+//		    DP.IMP_CARAC_PRESUP AS total
+//		FROM
+//		    SVC_CARAC_PRESUPUESTO CP
+//		INNER JOIN SVC_DETALLE_CARAC_PRESUP DP ON
+//		    DP.ID_CARAC_PRESUPUESTO = CP.ID_CARAC_PRESUPUESTO
+//		INNER JOIN SVT_ARTICULO ART ON
+//		    ART.ID_ARTICULO = DP.ID_ARTICULO
+//		INNER JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS CS ON
+//		    CS.ID_PRODUCTOS_SERVICIOS = ART.ID_PRODUCTOS_SERVICIOS
+//		WHERE
+//		    CP.ID_ORDEN_SERVICIO = 112 AND CP.IND_ACTIVO = 1 AND DP.IND_ACTIVO = 1 AND DP.DES_PROVIENE = 'presupuesto'
+//		UNION ALL
+//		SELECT
+//		    'Servicio' AS grupo,
+//		    SER.REF_SERVICIO AS concepto,
+//		    DP.CAN_DET_PRESUP AS cantidad,
+//		    CONCAT(
+//		        CS.CVE_PRODUCTOS_SERVICIOS,
+//		        ' ',
+//		        CS.REF_UNIDAD_SAT
+//		    ) AS claveSAT,
+//		    CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,
+//		    DP.IMP_CARAC_PRESUP AS importe,
+//		    DP.IMP_CARAC_PRESUP AS total
+//		FROM
+//		    SVC_CARAC_PRESUPUESTO CP
+//		INNER JOIN SVC_DETALLE_CARAC_PRESUP DP ON
+//		    DP.ID_CARAC_PRESUPUESTO = CP.ID_CARAC_PRESUPUESTO
+//		INNER JOIN SVT_SERVICIO SER ON
+//		    SER.ID_SERVICIO = DP.ID_SERVICIO
+//		INNER JOIN SVC_CLAVES_PRODUCTOS_SERVICIOS CS ON
+//		    CS.ID_PRODUCTOS_SERVICIOS = SER.ID_PRODUCTOS_SERVICIOS
+//		WHERE
+//		    CP.ID_ORDEN_SERVICIO = 112 AND CP.IND_ACTIVO = 1 AND DP.IND_ACTIVO = 1 AND DP.DES_PROVIENE = 'presupuesto'
+//		
+		
 		
 		StringBuilder query = new StringBuilder("");
 		
