@@ -217,7 +217,7 @@
 		<dependency>
 			<groupId>mx.gob.imss.cit.clienteswebservices.externos</groupId>
 			<artifactId>WSClienteFacturacion-jonima</artifactId>
- 		<version>1.0-SNAPSHOT</version>   <!-- Desarrollo -->
+ 		<version>1.0-SNAPSHOT</version> <!-- Desarrollo -->
 <!--	<version>1.0</version> --> <!-- Produccion -->
 		</dependency>
 	</dependencies>
