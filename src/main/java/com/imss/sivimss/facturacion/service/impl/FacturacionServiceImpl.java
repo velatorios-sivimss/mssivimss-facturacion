@@ -335,10 +335,16 @@ public class FacturacionServiceImpl implements FacturacionService {
 		document.setFieldValue( crearFacRequest.getForPago().getDesForPago().substring(0, 2) );
 		ep.getFields().add(document);
 		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","forma_pago " + crearFacRequest.getForPago().getDesForPago().substring(0, 2), authentication);
+		
 		document = new DocumentFields();
 		document.setFieldName("metodo_pago");
 		document.setFieldValue( crearFacRequest.getMetPagoFac().getDesMetPagoFac().substring(0, 3) );
 		ep.getFields().add(document);
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "","metodo_pago " + crearFacRequest.getMetPagoFac().getDesMetPagoFac().substring(0, 3), authentication);
 		
 		document = new DocumentFields();
 		document.setFieldName("folio_ods_convenio_permiso");
@@ -560,8 +566,10 @@ public class FacturacionServiceImpl implements FacturacionService {
 		Services port = service.getServicesPort();
 		String token = port.authenticate(user, pass);
 		
+		String datosFactura = gson.toJson(ep);
+		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
-				this.getClass().getPackage().toString(), "","Datos Factura " + ep, authentication);
+				this.getClass().getPackage().toString(), "","Datos Factura " + datosFactura, authentication);
 		
 		ExecuteProcedureResponse1 factura = port.executeProcedure("apikey", token, ep);
 		
