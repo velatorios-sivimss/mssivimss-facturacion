@@ -79,7 +79,7 @@ public class RfcServiceImpl implements RfcService {
 			
 		}else {
 			rfcResponse.setTipoPersona(AppConstantes.PERSONA_MORAL);
-			rfcResponse.setRazonSocial(salida.getReturn().getIdentificacion().get(0).getNomComercial());
+			rfcResponse.setRazonSocial(salida.getReturn().getIdentificacion().get(0).getRazonSoc());
 		}
 		
 		String cveRegimenFiscal = salida.getReturn().getRegimen().get(0).getCRegimen();
