@@ -248,8 +248,9 @@ public class FacturacionUtil {
 				+ "FROM\r\n"
 				+ "SVC_BITACORA_PAGO_ANTICIPADO BP\r\n"
 				+ "INNER JOIN SVC_METODO_PAGO MP ON MP.ID_METODO_PAGO = BP.ID_METODO_PAGO\r\n"
+				+ "INNER JOIN SVT_PAGO_SFPA PAGO ON PAGO.ID_PAGO_SFPA = BP.ID_PAGO_SFPA\r\n"
 				+ "WHERE\r\n"
-				+ "ID_PLAN_SFPA = " );
+				+ "PAGO.ID_PLAN_SFPA = " );
 		query.append( idPagoBitacora );
 		
 		return query.toString();
@@ -405,9 +406,10 @@ public class FacturacionUtil {
 				+ "CONCAT('\"', 'Nuevos convenios del Plan de Servicios Funerarios Pagos Anticipados.','\"')AS concPago,\r\n"
 				+ "IFNULL(\r\n"
 				+ "(SELECT SUM(IMP_PAGO)\r\n"
-				+ "FROM SVC_BITACORA_PAGO_ANTICIPADO\r\n"
+				+ "FROM SVC_BITACORA_PAGO_ANTICIPADO BP\r\n"
+				+ "INNER JOIN SVT_PAGO_SFPA PAGO ON PAGO.ID_PAGO_SFPA = BP.ID_PAGO_SFPA\r\n"
 				+ "WHERE\r\n"
-				+ "ID_PLAN_SFPA = " );
+				+ "PAGO.ID_PLAN_SFPA = " );
 		query.append( idPagoBitacora );
 		query.append("), 0)\r\n"
 				+ "AS totalPagado,\r\n"
