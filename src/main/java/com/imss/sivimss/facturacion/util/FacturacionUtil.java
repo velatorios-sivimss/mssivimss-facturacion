@@ -144,7 +144,7 @@ public class FacturacionUtil {
 				+ "NUM_FOLIO_PLAN_SFPA AS folio\r\n"
 				+ "FROM SVT_PLAN_SFPA\r\n"
 				+ "WHERE\r\n"
-				+ "ID_ESTATUS_PLAN_SFPA IN (4,5)\r\n"
+				+ "ID_ESTATUS_PLAN_SFPA IN (5,8)\r\n"
 				+ "AND IND_ACTIVO = '1'" );
 		
 		return query.toString();
@@ -865,6 +865,24 @@ public class FacturacionUtil {
 				+ idFactura
 				+ "\r\n"
 				+ "LIMIT 1" );
+		
+		return query.toString();
+	}
+	
+	public String foliosPagosSFPA(String idPlanSFPA) {
+		StringBuilder query = new StringBuilder("");
+		
+		query.append( "SELECT\r\n"
+				+ "ID_PLAN_SFPA AS idRegistro,\r\n"
+				+ "ID_PAGO_SFPA AS idPagoSFPA,\r\n"
+				+ "REF_FOLIO_RECIBO AS folio\r\n"
+				+ "FROM SVT_PAGO_SFPA\r\n"
+				+ "WHERE\r\n"
+				+ "ID_PLAN_SFPA = "
+				+ idPlanSFPA
+				+"\r\n"
+				+ "AND ID_ESTATUS_PAGO = 5\r\n"
+				+ "AND IND_ACTIVO = '1'" );
 		
 		return query.toString();
 	}

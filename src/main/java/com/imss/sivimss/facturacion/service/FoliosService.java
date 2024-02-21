@@ -11,5 +11,6 @@ public interface FoliosService {
 
 	Response<Object> buscarFolios(DatosRequest request, Authentication authentication) throws IOException;
 	Response<Object> infoFolio(DatosRequest request, Authentication authentication) throws IOException;
-
+	Response<Object> buscarNumRecPago(DatosRequest request, Authentication authentication) throws IOException;
+	
 }
