@@ -463,5 +463,27 @@ public class FoliosServiceImpl implements FoliosService {
 		return response;
 		
 	}
+
+	@Override
+	public Response<Object> buscarNumRecPago(DatosRequest request, Authentication authentication) throws IOException {
+		
+		Gson gson = new Gson();
+		FoliosRequest foliosRequest = gson.fromJson(String.valueOf(request.getDatos().get(AppConstantes.DATOS)), FoliosRequest.class);
+		FacturacionUtil facturacionUtil = new FacturacionUtil();
+		String query = facturacionUtil.foliosPagosSFPA( foliosRequest.getIdRegistro() );
+		
+		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
+				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
+		
+		Map<String, Object> datos = new HashMap<>();
+		datos.put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
+		request.setDatos(datos);
+		
+		Response<Object> response = providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + CONSULTA_GENERICA, 
+				authentication);
+		
+		return MensajeResponseUtil.mensajeConsultaResponse( response, SIN_INFORMACION );
+		
+	}
 	
 }
