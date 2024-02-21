@@ -17,6 +17,7 @@ public class InfoFolioResponse {
 	private String nomContratante;
 	private String fecOds;
 	private String fecPago;
+	private String folio;
 	private String concPago;
 	private String totalPagado;
 	private String totalServicios;

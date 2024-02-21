@@ -240,20 +240,39 @@ public class FacturacionUtil {
 	
 	public String obtMetPagoPA(String idPagoBitacora) {
 		
-		StringBuilder query = new StringBuilder("");
-		
-		query.append( "SELECT\r\n"
-				+ "MP.DES_METODO_PAGO AS metodoPago,\r\n"
-				+ "BP.IMP_PAGO AS importe\r\n"
+		String query="SELECT\r\n"
+				+ "	FORMAT((@I := @I + 1), 0) AS numeroPago,\r\n"
+				+ "	TBL1.*\r\n"
 				+ "FROM\r\n"
-				+ "SVC_BITACORA_PAGO_ANTICIPADO BP\r\n"
-				+ "INNER JOIN SVC_METODO_PAGO MP ON MP.ID_METODO_PAGO = BP.ID_METODO_PAGO\r\n"
-				+ "INNER JOIN SVT_PAGO_SFPA PAGO ON PAGO.ID_PAGO_SFPA = BP.ID_PAGO_SFPA\r\n"
-				+ "WHERE\r\n"
-				+ "PAGO.ID_PLAN_SFPA = " );
-		query.append( idPagoBitacora );
+				+ "	(\r\n"
+				+ "	SELECT\r\n"
+				+ "		SMP.DES_METODO_PAGO AS desMetodoPago,\r\n"
+				+ "		CASE WHEN SBPA.IMP_PAGO IS NOT NULL\r\n"
+				+ "		THEN CONCAT('$', FORMAT(SBPA.IMP_PAGO,2))\r\n"
+				+ "		WHEN SBPA.IMP_AUTORIZADO_VALE_PARITARIO IS NOT NULL\r\n"
+				+ "		THEN  CONCAT('$', FORMAT(SBPA.IMP_AUTORIZADO_VALE_PARITARIO,2))\r\n"
+				+ "		ELSE '' END AS importeTotal\r\n"
+				+ "	FROM\r\n"
+				+ "		SVC_BITACORA_PAGO_ANTICIPADO SBPA\r\n"
+				+ "	INNER JOIN SVT_PAGO_SFPA SPS ON\r\n"
+				+ "		SBPA.ID_PAGO_SFPA = SPS.ID_PAGO_SFPA\r\n"
+				+ "	INNER JOIN SVC_METODO_PAGO SMP ON\r\n"
+				+ "		SBPA.ID_METODO_PAGO = SMP.ID_METODO_PAGO\r\n"
+				+ "	INNER JOIN SVC_ESTATUS_PAGO_ANTICIPADO SPA ON\r\n"
+				+ "		SPS.ID_ESTATUS_PAGO = SPA.ID_ESTATUS_PAGO_ANTICIPADO\r\n"
+				+ "	WHERE\r\n"
+				+ "		SPS.ID_PAGO_SFPA = " +idPagoBitacora+" AND SBPA.IND_ACTIVO = 1 \r\n "
+				+ "	GROUP BY\r\n "
+				+ "		SBPA.ID_BITACORA_PAGO\r\n"
+				+ "	ORDER BY\r\n"
+				+ "		SBPA.ID_BITACORA_PAGO,\r\n"
+				+ "		SBPA.FEC_PAGO,\r\n"
+				+ "		SBPA.IND_ACTIVO ) TBL1,\r\n"
+				+ "	(\r\n"
+				+ "	SELECT\r\n"
+				+ "		@I := 0) C";
 		
-		return query.toString();
+		return query;
 	}
 	
 	public String crear(CrearFacRequest datos, Integer idUsuario) {
@@ -384,48 +403,29 @@ public class FacturacionUtil {
 		return query.toString();
 	}
 	
-	public String infoPagosPA(String idPagoBitacora) {
+	public String infoPagosPA(String idPlan,String idParcialidad) {
 		
-		StringBuilder query = new StringBuilder("");
+		SelectQueryUtil selectQueryUtil= new SelectQueryUtil();
+		selectQueryUtil.select(
+				"CONCAT('\"', PER.NOM_PERSONA, ' ', PER.NOM_PRIMER_APELLIDO, ' ', PER.NOM_SEGUNDO_APELLIDO, '\"') AS nomContratante",
+				"PA.FEC_INGRESO AS fecOds",
+			"sps.FEC_PARCIALIDAD AS fecPago",
+			"sps.REF_FOLIO_RECIBO AS folio",
+			"	CONCAT('\"', 'Pago de la Parcialidad con folio ', sps.REF_FOLIO_RECIBO, ' Plan de Servicios Funerarios Pagos Anticipados.', '\"')AS concPago",
+			"sps.IMP_MONTO_MENSUAL AS totalPagado",
+			"	PA.IMP_PRECIO AS totalServicios",
+			"	IF( PER.CVE_RFC IS NULL	OR LTRIM(PER.CVE_RFC) = '', NULL, LTRIM(PER.CVE_RFC)) AS rfc",
+			"	IF( PER.REF_CORREO IS NULL OR LTRIM(PER.REF_CORREO) = '', NULL,LTRIM(PER.REF_CORREO)) AS correo",
+			"	PA.ID_VELATORIO AS idVelatorio"
+				)
+		.from("SVT_PLAN_SFPA PA")
+		.innerJoin("SVC_CONTRATANTE CON", "CON.ID_CONTRATANTE = PA.ID_TITULAR")
+		.innerJoin("SVC_PERSONA PER", "PER.ID_PERSONA = CON.ID_PERSONA")
+		.innerJoin("SVT_PAGO_SFPA sps", "PA.ID_PLAN_SFPA = sps.ID_PLAN_SFPA")
+		.where("PA.ID_PLAN_SFPA = "+idPlan
+				+ " AND sps.ID_PAGO_SFPA = "+idParcialidad);
 		
-		query.append( "SELECT\r\n"
-				+ "CONCAT('\"', PER.NOM_PERSONA, ' ', PER.NOM_PRIMER_APELLIDO, ' ',PER.NOM_SEGUNDO_APELLIDO, '\"') AS nomContratante,\r\n"
-				+ "PA.FEC_INGRESO AS fecOds,\r\n"
-				+ "CONCAT('\"',\r\n"
-				+ "(\r\n"
-				+ "SELECT\r\n"
-				+ "FEC_ALTA\r\n"
-				+ "FROM\r\n"
-				+ "SVC_BITACORA_PAGO_ANTICIPADO\r\n"
-				+ "WHERE \r\n"
-				+ "ID_PLAN_SFPA = " );
-		query.append( idPagoBitacora );
-		query.append( "\r\n" );
-		query.append( "ORDER BY FEC_ALTA DESC\r\n"
-				+ "LIMIT 1), '\"') AS fecPago,\r\n"
-				+ "CONCAT('\"', 'Nuevos convenios del Plan de Servicios Funerarios Pagos Anticipados.','\"')AS concPago,\r\n"
-				+ "IFNULL(\r\n"
-				+ "(SELECT SUM(IMP_PAGO)\r\n"
-				+ "FROM SVC_BITACORA_PAGO_ANTICIPADO BP\r\n"
-				+ "INNER JOIN SVT_PAGO_SFPA PAGO ON PAGO.ID_PAGO_SFPA = BP.ID_PAGO_SFPA\r\n"
-				+ "WHERE\r\n"
-				+ "PAGO.ID_PLAN_SFPA = " );
-		query.append( idPagoBitacora );
-		query.append("), 0)\r\n"
-				+ "AS totalPagado,\r\n"
-				+ "PA.IMP_PRECIO AS totalServicios,\r\n"
-				+ "IF( PER.CVE_RFC IS NULL OR LTRIM(PER.CVE_RFC) = '', NULL, LTRIM(PER.CVE_RFC)) AS rfc,\r\n"
-				+ "IF( PER.REF_CORREO IS NULL OR LTRIM(PER.REF_CORREO) = '', NULL, LTRIM(PER.REF_CORREO)) AS correo,\r\n"
-				+ "PA.ID_VELATORIO AS idVelatorio\r\n"
-				+ "FROM SVT_PLAN_SFPA PA\r\n"
-				+ "INNER JOIN SVC_CONTRATANTE CON ON CON.ID_CONTRATANTE = PA.ID_TITULAR\r\n"
-				+ "INNER JOIN SVC_PERSONA PER ON PER.ID_PERSONA = CON.ID_PERSONA\r\n"
-				+ "WHERE\r\n"
-				+ "PA.ID_PLAN_SFPA =");
-		query.append( idPagoBitacora );
-		query.append( "\r\n LIMIT 1" );
-		
-		return query.toString();
+		return selectQueryUtil.build();
 	}
 	
 	public String obtServiciosPA(String idRegistro) {
@@ -438,8 +438,8 @@ public class FacturacionUtil {
 				+ "'1' AS cantidad,\r\n"
 				+ "CONCAT(CS.CVE_PRODUCTOS_SERVICIOS, ' ', CS.REF_UNIDAD_SAT) AS claveSAT,\r\n"
 				+ "CS.CVE_PRODUCTOS_SERVICIOS AS claveProd,\r\n"
-				+ "PAQ.MON_PRECIO AS importe,\r\n"
-				+ "PAQ.MON_PRECIO AS total\r\n"
+				+ "SFPA.IMP_PRECIO AS importe,\r\n"
+				+ "SFPA.IMP_PRECIO AS total\r\n"
 				+ "FROM\r\n"
 				+ "SVT_PLAN_SFPA SFPA\r\n"
 				+ "INNER JOIN SVT_PAQUETE PAQ ON PAQ.ID_PAQUETE = SFPA.ID_PAQUETE\r\n"
