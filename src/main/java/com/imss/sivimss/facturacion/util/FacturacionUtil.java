@@ -142,10 +142,7 @@ public class FacturacionUtil {
 		query.append( "SELECT\r\n"
 				+ "ID_PLAN_SFPA AS idRegistro,\r\n"
 				+ "NUM_FOLIO_PLAN_SFPA AS folio\r\n"
-				+ "FROM SVT_PLAN_SFPA\r\n"
-				+ "WHERE\r\n"
-				+ "ID_ESTATUS_PLAN_SFPA IN (5,8)\r\n"
-				+ "AND IND_ACTIVO = '1'" );
+				+ "FROM SVT_PLAN_SFPA\r\n");
 		
 		return query.toString();
 	}
