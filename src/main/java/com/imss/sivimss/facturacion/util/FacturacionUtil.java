@@ -246,7 +246,7 @@ public class FacturacionUtil {
 				+ "		SMP.DES_METODO_PAGO AS metodoPago,\r\n"
 				+ "		CASE WHEN IFNULL(SBPA.NUM_VALE_PARITARIO,'') = '' \r\n"
 				+ "		THEN SBPA.IMP_PAGO \r\n"
-				+ "		ELSE SBPA.NUM_VALE_PARITARIO  \r\n"
+				+ "		ELSE SBPA.IMP_AUTORIZADO_VALE_PARITARIO  \r\n"
 				+ "		END AS importe\r\n"
 				+ "	FROM\r\n"
 				+ "		SVC_BITACORA_PAGO_ANTICIPADO SBPA\r\n"
