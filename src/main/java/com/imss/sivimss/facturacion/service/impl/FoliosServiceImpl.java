@@ -388,7 +388,7 @@ public class FoliosServiceImpl implements FoliosService {
 		/**
 		 * Primero obtenemos la informacion basica del Pago en SVT_PAGO_BITACORA
 		 */
-		query = facturacionUtil.infoPagosPA(foliosRequest.getIdRegistro());
+		query = facturacionUtil.infoPagosPA(foliosRequest.getIdRegistro(),foliosRequest.getIdPagoBitacora());
 		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
@@ -408,7 +408,7 @@ public class FoliosServiceImpl implements FoliosService {
 		 * Despues obtenemos todos los metodos del Pagos en SVT_PAGO_DETALLE
 		 */
 		
-		query = facturacionUtil.obtMetPagoPA(foliosRequest.getIdRegistro() );
+		query = facturacionUtil.obtMetPagoPA(foliosRequest.getIdPagoBitacora());
 		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 				this.getClass().getPackage().toString(), "",CONSULTA +" " + query, authentication);
