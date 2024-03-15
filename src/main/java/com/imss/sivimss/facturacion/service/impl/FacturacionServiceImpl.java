@@ -17,6 +17,8 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
 
 import org.apache.commons.io.IOUtils;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,9 +30,18 @@ import com.google.gson.Gson;
 import com.imss.sivimss.facturacion.service.FacturacionService;
 import com.imss.sivimss.facturacion.util.DatosRequest;
 import com.imss.sivimss.facturacion.util.Response;
+import com.imss.sivimss.facturacion.util.SQLLoader;
+
 import lombok.extern.log4j.Log4j2;
 
 import com.imss.sivimss.facturacion.model.request.UsuarioDto;
+import com.imss.sivimss.facturacion.configuration.MyBatisConfig;
+import com.imss.sivimss.facturacion.configuration.mapper.Consultas;
+import com.imss.sivimss.facturacion.model.entity.Bitacora;
+import com.imss.sivimss.facturacion.model.entity.OrdenesServicio;
+import com.imss.sivimss.facturacion.model.entity.PagoBitacora;
+import com.imss.sivimss.facturacion.model.entity.Factura;
+import com.imss.sivimss.facturacion.model.entity.PagoBitacoraDetalles;
 import com.imss.sivimss.facturacion.model.request.Archivos;
 import com.imss.sivimss.facturacion.model.request.CancelarFacRequest;
 import com.imss.sivimss.facturacion.model.request.CorreoRequest;
@@ -101,6 +112,12 @@ public class FacturacionServiceImpl implements FacturacionService {
 	
 	@Autowired
 	private ModelMapper modelMapper;
+
+	@Autowired
+	private MyBatisConfig myBatisConfig;
+
+	@Autowired
+	private SQLLoader sqlLoader;
 	
 	private static final String ERROR_INFORMACION = "52"; // Error al consultar la información.
 	private static final String CONSULTA = "consulta";
@@ -672,6 +689,31 @@ public class FacturacionServiceImpl implements FacturacionService {
 		response.setMensaje("Exito");
 		response.setDatos(idFactura);
 		
+		log.info("----------------------------------------------------------------------------------------------------------------");
+		//UsuarioDto usuarioDto = gson.fromJson((String) authentication.getPrincipal(), UsuarioDto.class);
+		SqlSessionFactory sqlSessionFactory = myBatisConfig.buildqlSessionFactory();
+		Factura pagoDespues = new Factura();
+		List<PagoBitacoraDetalles> pagoDetallesDespues = null;
+		OrdenesServicio ordenesServAntesDespues = null;
+		try (SqlSession session = sqlSessionFactory.openSession()) {
+			Consultas consultas = session.getMapper(Consultas.class);
+
+			try {
+				String consultaFactura = sqlLoader.getConsultaFacturaPorFolioFiscal();
+				Factura regisFactura = consultas.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", ""+idFactura));
+
+
+				String queryBitacora = sqlLoader.getBitacoraNuevoRegistro();
+				consultas.insertData(queryBitacora, new Bitacora(1, "SVC_FACTURA", null, regisFactura.toString(), usuarioDto.getIdUsuario()));
+							
+				session.commit();
+			} catch (Exception e) {
+				session.rollback();
+				log.error(e.getMessage());
+			}
+		}
+		log.info("----------------------------------------------------------------------------------------------------------------");
+		
 		
 		return response;
 	}
@@ -712,6 +754,12 @@ public class FacturacionServiceImpl implements FacturacionService {
 		FacturaBDResponse factura;
 		List<Map<String, Object>> listadatos;
 		Response<Object> response = new Response<Object>();
+		
+		
+		
+		
+		
+		
 		String query = facturacionUtil.datosFactura( cancelarFacRequest.getFolioFactura(), formatoFecha );
 		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
@@ -816,6 +864,35 @@ public class FacturacionServiceImpl implements FacturacionService {
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
 				this.getClass().getPackage().toString(), "","Respuesta Factura: " + respuesta, authentication);
 		
+		
+		
+		
+		log.info(
+				"----------------------------------------------------------------------------------------------------------------");
+		SqlSessionFactory sqlSessionFactory = myBatisConfig.buildqlSessionFactory();
+		PagoBitacora pagoAntes = new PagoBitacora();
+		List<PagoBitacoraDetalles> pagoDetallesAntes = null;
+		OrdenesServicio ordenesServAntes = null;
+		String folioFiscal = cancelarFacRequest.getFolioFiscal();
+		Factura regisFacturaAntes = new Factura();
+		try (SqlSession session = sqlSessionFactory.openSession()) {
+
+			Consultas consultas = session.getMapper(Consultas.class);
+
+			try {
+				String consultaFactura = sqlLoader.getConsultaFacturaPorFolioFiscal();
+				regisFacturaAntes = consultas
+						.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", "" + folioFiscal));
+
+			} catch (Exception e) {
+				log.error(e.getMessage());
+			}
+		}
+		log.info(
+				"----------------------------------------------------------------------------------------------------------------");
+		
+		
+		
 		query = facturacionUtil.cancelar(cancelarFacRequest, usuarioDto.getIdUsuario());
 		
 		logUtil.crearArchivoLog(Level.INFO.toString(), this.getClass().getSimpleName(), 
@@ -823,6 +900,29 @@ public class FacturacionServiceImpl implements FacturacionService {
 		
 		request.getDatos().put(AppConstantes.QUERY, DatatypeConverter.printBase64Binary(query.getBytes("UTF-8")));
 		
+
+		Factura regisFacturaDespues = new Factura();
+		try (SqlSession session = sqlSessionFactory.openSession()) {
+
+			Consultas consultas = session.getMapper(Consultas.class);
+
+			try {
+				String consultaFactura = sqlLoader.getConsultaFacturaPorFolioFiscal();
+				regisFacturaDespues = consultas
+						.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", "" + folioFiscal));
+
+				String queryBitacora = sqlLoader.getBitacoraNuevoRegistro();
+				consultas.insertData(queryBitacora,
+						new Bitacora(1, "SVC_FACTURA", regisFacturaAntes.toString(), regisFacturaDespues.toString().toString(), usuarioDto.getIdUsuario()));
+
+			} catch (Exception e) {
+				log.error(e.getMessage());
+			}
+		}
+		log.info(
+				"----------------------------------------------------------------------------------------------------------------");
+
+
 		return providerRestTemplate.consumirServicio(request.getDatos(), urlDomino + ACTUALIZAR, 
 				authentication);
 		
