@@ -36,7 +36,7 @@ public class SQLLoader {
         bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
         consultaFacturaPorIdFactura = new String(bytes, StandardCharsets.UTF_8);
 
-        resource = resourceLoader.getResource("classpath:sql/FACTURA_CONSULTA_POR_FOLIO_FISCAL.SQLSQL");
+        resource = resourceLoader.getResource("classpath:sql/FACTURA_CONSULTA_POR_FOLIO_FISCAL.SQL");
         bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
         consultaFacturaPorFolioFiscal = new String(bytes, StandardCharsets.UTF_8);
     }
