@@ -19,7 +19,7 @@ public class SQLLoader {
     private final ResourceLoader resourceLoader;
 
     private String bitacoraNuevoRegistro;
-    private String consultaFacturaPorFolioFiscal;
+    private String consultaFacturaPorIdFactura;
 
     public SQLLoader(ResourceLoader resourceLoader) {
         this.resourceLoader = resourceLoader;
@@ -33,7 +33,7 @@ public class SQLLoader {
 
         resource = resourceLoader.getResource("classpath:sql/FACTURA_CONSULTA_POR_FOLIO_FISCAL.SQL");
         bytes = FileCopyUtils.copyToByteArray(resource.getInputStream());
-        consultaFacturaPorFolioFiscal = new String(bytes, StandardCharsets.UTF_8);
+        consultaFacturaPorIdFactura = new String(bytes, StandardCharsets.UTF_8);
     }
 
     

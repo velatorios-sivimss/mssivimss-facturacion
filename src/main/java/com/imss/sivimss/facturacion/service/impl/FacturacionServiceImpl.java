@@ -699,7 +699,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 			Consultas consultas = session.getMapper(Consultas.class);
 
 			try {
-				String consultaFactura = sqlLoader.getConsultaFacturaPorFolioFiscal();
+				String consultaFactura = sqlLoader.getConsultaFacturaPorIdFactura();
 				Factura regisFactura = consultas.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", ""+idFactura));
 
 
@@ -880,7 +880,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 			Consultas consultas = session.getMapper(Consultas.class);
 
 			try {
-				String consultaFactura = sqlLoader.getConsultaFacturaPorFolioFiscal();
+				String consultaFactura = sqlLoader.getConsultaFacturaPorIdFactura();
 				regisFacturaAntes = consultas
 						.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", "" + folioFiscal));
 
@@ -907,7 +907,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 			Consultas consultas = session.getMapper(Consultas.class);
 
 			try {
-				String consultaFactura = sqlLoader.getConsultaFacturaPorFolioFiscal();
+				String consultaFactura = sqlLoader.getConsultaFacturaPorIdFactura();
 				regisFacturaDespues = consultas
 						.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", "" + folioFiscal));
 
