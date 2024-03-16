@@ -873,14 +873,14 @@ public class FacturacionServiceImpl implements FacturacionService {
 		PagoBitacora pagoAntes = new PagoBitacora();
 		List<PagoBitacoraDetalles> pagoDetallesAntes = null;
 		OrdenesServicio ordenesServAntes = null;
-		String folioFiscal = cancelarFacRequest.getFolioFiscal();
+		String folioFiscal = cancelarFacRequest.getFolioFactura();
 		Factura regisFacturaAntes = new Factura();
 		try (SqlSession session = sqlSessionFactory.openSession()) {
 
 			Consultas consultas = session.getMapper(Consultas.class);
 
 			try {
-				String consultaFactura = sqlLoader.getConsultaFacturaPorFolioFiscal();
+				String consultaFactura = sqlLoader.getConsultaFacturaPorIdFactura();
 				regisFacturaAntes = consultas
 						.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", "" + folioFiscal));
 
@@ -907,7 +907,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 			Consultas consultas = session.getMapper(Consultas.class);
 
 			try {
-				String consultaFactura = sqlLoader.getConsultaFacturaPorFolioFiscal();
+				String consultaFactura = sqlLoader.getConsultaFacturaPorIdFactura();
 				regisFacturaDespues = consultas
 						.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", "" + folioFiscal));
 
