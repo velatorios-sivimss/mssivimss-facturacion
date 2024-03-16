@@ -756,33 +756,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 		Response<Object> response = new Response<Object>();
 		
 		
-		log.info(
-					"----------------------------------------------------------------------------------------------------------------");
-			SqlSessionFactory sqlSessionFactory = myBatisConfig.buildqlSessionFactory();
-			PagoBitacora pagoAntes = new PagoBitacora();
-			List<PagoBitacoraDetalles> pagoDetallesAntes = null;
-			OrdenesServicio ordenesServAntes = null;
-			String folioFiscal = cancelarFacRequest.getFolioFactura();
-			Factura regisFacturaAntes = new Factura();
-			try (SqlSession session = sqlSessionFactory.openSession()) {
-	
-				Consultas consultas = session.getMapper(Consultas.class);
-	
-				try {
-					String consultaFactura = sqlLoader.getConsultaFacturaPorIdFactura();
-					regisFacturaAntes = consultas
-							.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", "" + folioFiscal));
-	
-							String queryBitacora = sqlLoader.getBitacoraNuevoRegistro();
-				consultas.insertData(queryBitacora,
-						new Bitacora(1, "SVC_FACTURA", regisFacturaAntes.toString(), null, usuarioDto.getIdUsuario()));
-
-				} catch (Exception e) {
-					log.error(e.getMessage());
-				}
-			}
-			log.info(
-					"----------------------------------------------------------------------------------------------------------------");
+		
 		
 		
 		
@@ -884,7 +858,33 @@ public class FacturacionServiceImpl implements FacturacionService {
 				this.getClass().getPackage().toString(), "","Datos Factura: " + ep, authentication);
 		
 
-				
+				log.info(
+					"----------------------------------------------------------------------------------------------------------------");
+			SqlSessionFactory sqlSessionFactory = myBatisConfig.buildqlSessionFactory();
+			PagoBitacora pagoAntes = new PagoBitacora();
+			List<PagoBitacoraDetalles> pagoDetallesAntes = null;
+			OrdenesServicio ordenesServAntes = null;
+			String folioFiscal = cancelarFacRequest.getFolioFactura();
+			Factura regisFacturaAntes = new Factura();
+			try (SqlSession session = sqlSessionFactory.openSession()) {
+	
+				Consultas consultas = session.getMapper(Consultas.class);
+	
+				try {
+					String consultaFactura = sqlLoader.getConsultaFacturaPorIdFactura();
+					regisFacturaAntes = consultas
+							.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", "" + folioFiscal));
+	
+							String queryBitacora = sqlLoader.getBitacoraNuevoRegistro();
+				consultas.insertData(queryBitacora,
+						new Bitacora(1, "SVC_FACTURA", regisFacturaAntes.toString(), null, usuarioDto.getIdUsuario()));
+
+				} catch (Exception e) {
+					log.error(e.getMessage());
+				}
+			}
+			log.info(
+					"----------------------------------------------------------------------------------------------------------------");
 
 
 		ExecuteProcedureResponse1 facturaResponse = port.executeProcedure("apikey", token, ep);
