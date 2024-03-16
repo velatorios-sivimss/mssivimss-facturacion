@@ -880,7 +880,7 @@ public class FacturacionServiceImpl implements FacturacionService {
 			Consultas consultas = session.getMapper(Consultas.class);
 
 			try {
-				String consultaFactura = sqlLoader.getConsultaFacturaPorIdFactura();
+				String consultaFactura = sqlLoader.getConsultaFacturaPorFolioFiscal();
 				regisFacturaAntes = consultas
 						.cosultaFacturaPorFolioFiscal(consultaFactura.replace("#{idBitacora}", "" + folioFiscal));
 
